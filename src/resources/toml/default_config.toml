@@ -22,7 +22,7 @@ restore_cookies = true
 force_speed = false
 speed = 2.0
 enable_search = true
-search_max_results = 3
+search_max_results = 10
 
 # 颜色主题
 

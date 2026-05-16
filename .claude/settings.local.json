@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "WebSearch"
+      "WebSearch",
+      "Bash(python -m ruff check src/app/auto_answer/_web_search.py)",
+      "Bash(ruff check *)",
+      "Bash(python -m pip show ruff)",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('src/app/auto_answer/_web_search.py'\\).read\\(\\)\\); print\\('syntax OK'\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('src/app/auto_answer/_web_search.py', encoding='utf-8'\\).read\\(\\)\\); print\\('syntax OK'\\)\")"
     ]
   }
 }

@@ -184,11 +184,10 @@ class CourseHandler:
 
     def launch_driver(self) -> None:
         """初始化浏览器驱动"""
-        logging.info(
-            "未指定浏览器内核, 尝试依次启动 Firefox、Edge、Chrome"
-            if self._settings.browser == ""
-            else "尝试启动指定的 %s 浏览器", self._settings.browser
-        )
+        if self._settings.browser == "":
+            logging.info("未指定浏览器内核, 尝试依次启动 Firefox、Edge、Chrome")
+        else:
+            logging.info("尝试启动指定的 %s 浏览器", self._settings.browser)
 
         for browser in (
             ["Firefox", "Edge", "Chrome"] if self._settings.browser == ""
