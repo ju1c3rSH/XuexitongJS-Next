@@ -9,6 +9,7 @@ from openai import OpenAI, OpenAIError
 from openai.types.chat import ChatCompletionMessageParam
 
 from ..utils import global_config
+from ._web_search import search_for_questions
 
 
 def get_openai_client(config: dict[str, str]) -> tuple[OpenAI, str]:
@@ -44,25 +45,38 @@ def chat_with_openai(
 def answer_questions_batch(questions: list[dict[str, str]], retry: int = 3) -> str:
     """批量请求AI回答题目, 返回答案string, 如果多次请求失败, 则返回默认答案A"""
 
+    search_context: str = ""
+    course_config = global_config.get("auto_course", {})
+    if course_config.get("enable_search", True):
+        max_results: int = course_config.get("search_max_results", 3)
+        search_context = search_for_questions(questions, max_results)
+
     prompt: str = "".join(
         f"{idx}. 题干:{q['题干']}\n选项:{q['选项']}\n"
         for idx, q in enumerate(questions, 1)
     )
 
+    system_prompt: str = (
+        '你是一个中文高效答题助手, 你会根据题干和选项, 直接给出最可能的正确答案。'
+        '如果题目涉及敏感政治内容或者国家安全, 请尽量选择最中立的选项。\n'
+        '现在请依次回答以下题目, 每题只输出“题号:答案”, 不要解释, 每题一行, '
+        '题号请用题目原题号,多选题直接把选项字母拼接(如51:A, 44:ACD)\n'
+        '同时对于有错别字和语句不通的题目, 尝试利用形近字猜测原题意, '
+        '同时注意不要输出“ERROR”, 必须保证每次至少输出一个选项。'
+    )
+
+    if search_context:
+        system_prompt += f"\n\n以下是与题目相关的参考资料, 请结合这些信息作答:\n{search_context}"
+
     messages: list[ChatCompletionMessageParam] = [
-        {"role": "system", "content": """
-            你是一个中文高效答题助手, 你会根据题干和选项, 直接给出最可能的正确答案。如果题目涉及敏感政治内容或者国家安全, 请尽量选择最中立的选项。
-            现在请依次回答以下题目, 每题只输出“题号:答案”, 不要解释, 每题一行, 题号请用题目原题号,多选题直接把选项字母拼接(如51:A, 44:ACD)
-            同时对于有错别字和语句不通的题目, 尝试利用形近字猜测原题意, 同时注意不要输出“ERROR”, 必须保证每次至少输出一个选项。
-         """
-        },
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": prompt}
     ]
 
     response: str = ""
 
     for i in range(retry):
-        logging.info("第 %d 次请求完成", i + 1)
+        logging.info("第 %d 次请求中...", i + 1)
         try:
             response = chat_with_openai(messages)
             logging.info("批量请求成功")
