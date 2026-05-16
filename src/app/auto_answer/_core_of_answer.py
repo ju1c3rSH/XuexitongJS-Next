@@ -54,7 +54,7 @@ def answer_questions_batch(questions: list[dict[str, str]], retry: int = 3) -> s
     search_context: str = ""
     course_config = global_config.get("auto_course", {})
     if course_config.get("enable_search", True):
-        max_results: int = course_config.get("search_max_results", 10)
+        max_results: int = course_config.get("search_max_results", 20)
         search_context = search_for_questions(questions, max_results)
 
     prompt: str = "".join(
