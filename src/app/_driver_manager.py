@@ -48,11 +48,11 @@ def load_settings() -> CourseSettings:
 class CourseHandler:
     """网课处理类, 包含selenium浏览器驱动启动和 AI 答题所需的JS/PY 双向 WebSocket 服务"""
     def __init__(self):
-        self._driver: webdriver.Firefox | webdriver.Edge | webdriver.Chrome
-        self._ws_thread: threading.Thread
-        self._mouse_thread: threading.Thread
+        self._driver: webdriver.Firefox | webdriver.Edge | webdriver.Chrome | None = None
+        self._ws_thread: threading.Thread | None = None
+        self._mouse_thread: threading.Thread | None = None
         self._settings = load_settings()
-        self._script_code: str
+        self._script_code: str = ""
 
     async def _messenger(self, websocket: websockets.ServerConnection) -> None:
         """WebSocket 消息处理器"""
@@ -91,9 +91,10 @@ class CourseHandler:
     ) -> webdriver.Firefox | webdriver.Edge | webdriver.Chrome:
         """初始化浏览器驱动"""
         driver_map: dict = {
+            "Chrome": (webdriver.Chrome, ChromeOptions),
             "Firefox": (webdriver.Firefox, FirefoxOptions),
             "Edge": (webdriver.Edge, EdgeOptions),
-            "Chrome": (webdriver.Chrome, ChromeOptions),
+            
         }
 
         driver_cls, options_cls = driver_map.get(browser, driver_map["Firefox"])
@@ -196,8 +197,12 @@ class CourseHandler:
             try:
                 self._verify_browser(browser)
                 break
-            except NoSuchDriverException:
-                logging.warning("%s内核启动失败", browser)
+            except (NoSuchDriverException, WebDriverException) as e:
+                logging.warning("%s内核启动失败: %s", browser, e)
+
+        if self._driver is None:
+            logging.error("所有浏览器内核均启动失败, 请检查浏览器是否已安装")
+            return
         self._open_website()
 
     def launch_script(self) -> None:
@@ -230,7 +235,7 @@ class CourseHandler:
 
     def driver_quit(self) -> None:
         """关闭浏览器驱动"""
-        if hasattr(self, "_driver"):
+        if self._driver is not None:
             try:
                 handles = self._driver.window_handles
                 self._driver.switch_to.window(handles[-1])

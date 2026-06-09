@@ -6,7 +6,7 @@ import time
 from ddgs import DDGS
 
 
-def search_for_questions(questions: list[dict], max_results: int = 20) -> str:
+def search_for_questions(questions: list[dict], max_results: int = 3) -> str:
     """为题目搜索相关参考资料, 返回格式化的搜索结果字符串"""
 
     all_results: list[str] = []

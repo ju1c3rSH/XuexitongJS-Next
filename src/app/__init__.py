@@ -48,8 +48,11 @@ class TaskExecutor(QObject):
         if handler is None:
             logging.error("未找到业务%s", task_name)
         else:
-            task_method = getattr(handler, task_name)
-            result = task_method(*args)
+            try:
+                task_method = getattr(handler, task_name)
+                result = task_method(*args)
+            except Exception:
+                logging.exception("执行业务 '%s' 时发生异常", task_name)
 
         if self._finish:
             self._finish(job_id, result)
