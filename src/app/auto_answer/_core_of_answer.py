@@ -10,7 +10,7 @@ from openai import OpenAI, OpenAIError
 from openai.types.chat import ChatCompletionMessageParam
 
 from ..utils import global_config
-from ._prompt_builder import build_system_prompt, resolve_placeholders
+from ._prompt_builder import build_system_prompt, build_vision_messages, resolve_placeholders
 from ._web_search import search_for_questions
 
 
@@ -50,7 +50,11 @@ def chat_with_openai(
     return str(completion.choices[0].message.content)
 
 
-def answer_questions_batch(questions: list[dict[str, str]], retry: int = 3) -> str:
+def answer_questions_batch(
+    questions: list[dict[str, str]],
+    image_refs: list[dict[str, Any]] | None = None,
+    retry: int = 3,
+) -> str:
     """批量请求AI回答题目, 返回答案string, 如果多次请求失败, 则返回默认答案A"""
 
     search_context: str = ""
@@ -59,17 +63,21 @@ def answer_questions_batch(questions: list[dict[str, str]], retry: int = 3) -> s
         max_results: int = course_config.get("search_max_results", 3)
         search_context = search_for_questions(questions, max_results)
 
-    prompt: str = "".join(
-        f"{idx}. 题干:{q['题干']}\n选项:{q['选项']}\n"
-        for idx, q in enumerate(questions, 1)
-    )
-
     system_prompt: str = build_system_prompt(search_context)
 
-    messages: list[ChatCompletionMessageParam] = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": prompt},
-    ]
+    openai_config = global_config.get("openai", {})
+    if openai_config.get("enable_vision", False) and bool(image_refs):
+        messages = build_vision_messages(questions, image_refs)
+    else:
+        prompt: str = "".join(
+            f"{idx}. 题干:{resolve_placeholders(q.get('题干',''), image_refs or [])}\n"
+            f"选项:{[resolve_placeholders(o, image_refs or []) for o in q.get('选项',[])]}\n"
+            for idx, q in enumerate(questions, 1)
+        )
+        messages: list[ChatCompletionMessageParam] = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": prompt},
+        ]
 
     response: str = ""
 
@@ -100,11 +108,6 @@ def answer_questions_file(
     with input_json_path.open(encoding="utf-8") as f:
         questions: list[dict[str, str]] = json.load(f)
 
-    if image_refs:
-        for q in questions:
-            q["题干"] = resolve_placeholders(q.get("题干", ""), image_refs)
-            q["选项"] = [resolve_placeholders(o, image_refs) for o in q.get("选项", [])]
-
     for batch_start in range(0, len(questions), batch_size):
         batch: list[dict[str, str]] = questions[batch_start : batch_start + batch_size]
         logging.info(
@@ -112,7 +115,7 @@ def answer_questions_file(
             batch_start + 1,
             min(batch_start + batch_size, len(questions)),
         )
-        batch_answer: str = answer_questions_batch(batch)
+        batch_answer: str = answer_questions_batch(batch, image_refs)
         logging.info("AI批量答案: %s", batch_answer)
         answer_map = {}
         for line in batch_answer.splitlines():

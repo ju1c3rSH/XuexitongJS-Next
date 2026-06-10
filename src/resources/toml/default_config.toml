@@ -9,6 +9,7 @@ theme = "aoguchi"
 api_key = ""
 base_url = "https://api.moonshot.cn/v1"
 model = "kimi-k2-0905-preview"
+enable_vision = false
 
 # 刷课相关配置
 

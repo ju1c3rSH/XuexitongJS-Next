@@ -77,6 +77,18 @@ Rectangle {
             Component.onCompleted: { value = String(Interface.getResult(jobId)); }
         }
 
+        OptionBox {
+            id: visionBox;
+            anchors.horizontalCenter: parent.horizontalCenter;
+            width: parent.width - 100;
+            option: "Enable Vision";
+            jobId: Interface.dispatch("get_config", ["openai", "enable_vision"]);
+            Component.onCompleted: {
+                const chosen_text = Interface.getResult(jobId);
+                visionBox.chosen = (chosen_text === "True") ? true : false;
+            }
+        }
+
         MainButton {
             id: saveBtn;
             text: "SAVE";
@@ -89,6 +101,7 @@ Rectangle {
                 Interface.dispatch("set_config", [["openai", "api_key"], apiKeyBox.value]);
                 Interface.dispatch("set_config", [["openai", "base_url"], baseUrlBox.value]);
                 Interface.dispatch("set_config", [["openai", "model"], modelBox.value]);
+                Interface.dispatch("set_config", [["openai", "enable_vision"], visionBox.chosen]);
                 saveBtn.currentJobId = Interface.dispatch("commit_config", []);
             }
         }
