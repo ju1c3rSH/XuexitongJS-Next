@@ -13,6 +13,7 @@ from ._core_of_answer import answer_questions_file, extract_simple_answers
 from ._create_map import create_font_mapping
 from ._depry_question import decode_questions
 from ._extract_html import extract_font_from_html, extract_questions_from_html
+from ._image_processor import ImageProcessor
 
 
 async def answer_questions() -> None:
@@ -29,9 +30,15 @@ async def answer_questions() -> None:
 
     async with aiofiles.open(html_path, encoding="utf-8") as f:
         html_content = await f.read()
+
+    # @font-face 在 <style> 中，不受图片处理影响，但先提取更安全
     extract_font_from_html(html_content, ttf_path)
 
-    questions = extract_questions_from_html(html_content)
+    img_save_dir: Path = get_path(False, "question_images")
+    processor = ImageProcessor(img_save_dir)
+    processed_html, image_refs = await processor.process(html_content)
+
+    questions = extract_questions_from_html(processed_html)
     async with aiofiles.open(questions_path, "w", encoding="utf-8") as f:
         await f.write(json.dumps(questions, ensure_ascii=False, indent=2))
 
@@ -39,5 +46,5 @@ async def answer_questions() -> None:
     create_font_mapping(ttf_path, std_font_path, mapping_json_path)
     decode_questions(questions_path, decoded_json_path, mapping_json_path)
 
-    answer_questions_file(decoded_json_path, answered_json_path)
+    answer_questions_file(decoded_json_path, answered_json_path, image_refs)
     extract_simple_answers(answered_json_path, simplified_json_path)

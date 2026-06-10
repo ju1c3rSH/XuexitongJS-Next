@@ -6,19 +6,10 @@ import json
 import logging
 from pathlib import Path
 
-import ddddocr
 from fontTools.ttLib import TTFont
 from PIL import Image, ImageDraw, ImageFont
 
-_ocr_instance: ddddocr.DdddOcr | None = None
-
-
-def _get_ocr() -> ddddocr.DdddOcr:
-    """获取 OCR 实例 (懒加载单例)"""
-    global _ocr_instance
-    if _ocr_instance is None:
-        _ocr_instance = ddddocr.DdddOcr(show_ad=False)
-    return _ocr_instance
+from ._ocr_engine import OcrEngine
 
 
 def glyph_to_img(ttf_path: Path, char, size=256):
@@ -41,10 +32,10 @@ def glyph_to_img(ttf_path: Path, char, size=256):
 
 def ocr_recognize(img: Image.Image) -> str | None:
     """OCR 识别单个字符图像"""
-    ocr = _get_ocr()
+    engine = OcrEngine.get_instance()
     buf = io.BytesIO()
     img.save(buf, format='PNG')
-    text = ocr.classification(buf.getvalue())
+    text = engine.recognize_sync(buf.getvalue())
     if text and len(text) >= 1:
         return text[0]
     return None
@@ -68,7 +59,7 @@ def create_font_mapping(
     """生成加密字体到真实字符的映射 (基于 OCR 识别)"""
     enc_font: TTFont = TTFont(enc_font_path)
     enc_cmap = enc_font["cmap"].getBestCmap()
-    _get_ocr()
+    OcrEngine.get_instance()
 
     mapping: dict[str, str] = {}
 

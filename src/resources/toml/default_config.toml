@@ -74,6 +74,7 @@ questions = ["data", "temp", "json", "questions.json"]
 decoded = ["data", "temp", "json", "questions_decoded.json"]
 qa_pairs = ["data", "temp", "json", "q&a_pairs.json"]
 answers = ["data", "temp", "json", "final_answers.json"]
+question_images = ["data", "temp", "images"]
 
 [path_groups.static]
 js_script = ["src", "main_script", "script.js"]

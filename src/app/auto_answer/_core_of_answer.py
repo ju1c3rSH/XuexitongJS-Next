@@ -4,11 +4,13 @@ import json
 import logging
 import time
 from pathlib import Path
+from typing import Any
 
 from openai import OpenAI, OpenAIError
 from openai.types.chat import ChatCompletionMessageParam
 
 from ..utils import global_config
+from ._prompt_builder import build_system_prompt, resolve_placeholders
 from ._web_search import search_for_questions
 
 
@@ -62,19 +64,7 @@ def answer_questions_batch(questions: list[dict[str, str]], retry: int = 3) -> s
         for idx, q in enumerate(questions, 1)
     )
 
-    system_prompt: str = (
-        "你是一个中文高效答题助手, 你会根据题干和选项, 直接给出最可能的正确答案。"
-        "如果题目涉及敏感政治内容或者国家安全, 请尽量选择最中立的选项。\n"
-        "现在请依次回答以下题目, 每题只输出“题号:答案”, 不要解释, 每题一行, "
-        "题号请用题目原题号,多选题直接把选项字母拼接(如51:A, 44:ACD)\n"
-        "同时对于有错别字和语句不通的题目, 尝试利用形近字猜测原题意, "
-        "同时注意不要输出“ERROR”, 必须保证每次至少输出一个选项。"
-    )
-
-    if search_context:
-        system_prompt += (
-            f"\n\n以下是与题目相关的参考资料, 请结合这些信息作答:\n{search_context}"
-        )
+    system_prompt: str = build_system_prompt(search_context)
 
     messages: list[ChatCompletionMessageParam] = [
         {"role": "system", "content": system_prompt},
@@ -100,12 +90,20 @@ def answer_questions_batch(questions: list[dict[str, str]], retry: int = 3) -> s
 
 
 def answer_questions_file(
-    input_json_path: Path, output_json_path: Path, batch_size: int = 10
+    input_json_path: Path,
+    output_json_path: Path,
+    image_refs: list[dict[str, Any]] | None = None,
+    batch_size: int = 10,
 ) -> None:
     """从文件读取题目, 批量请求AI并写入带答案的json"""
 
     with input_json_path.open(encoding="utf-8") as f:
         questions: list[dict[str, str]] = json.load(f)
+
+    if image_refs:
+        for q in questions:
+            q["题干"] = resolve_placeholders(q.get("题干", ""), image_refs)
+            q["选项"] = [resolve_placeholders(o, image_refs) for o in q.get("选项", [])]
 
     for batch_start in range(0, len(questions), batch_size):
         batch: list[dict[str, str]] = questions[batch_start : batch_start + batch_size]
