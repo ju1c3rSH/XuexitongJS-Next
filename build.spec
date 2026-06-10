@@ -1,0 +1,134 @@
+# -*- mode: python ; coding: utf-8 -*-
+
+import sys
+from pathlib import Path
+
+
+block_cipher = None
+
+SRC = Path("src")
+
+datas = []
+
+for root in [SRC / "gui", SRC / "resources", SRC / "main_script"]:
+    for f in root.rglob("*"):
+        if f.is_file():
+            rel = f.relative_to(SRC)
+            datas.append((str(f), str(rel.parent)))
+
+a = Analysis(
+    ["src/main.py"],
+    pathex=[],
+    binaries=[],
+    datas=datas,
+    hiddenimports=[
+        "app",
+        "app.utils",
+        "app._config_manager",
+        "app._driver_manager",
+        "app.auto_answer",
+        "app.auto_answer._ocr_engine",
+        "app.auto_answer._image_processor",
+        "app.auto_answer._prompt_builder",
+        "app.auto_answer._create_map",
+        "app.auto_answer._depry_question",
+        "app.auto_answer._core_of_answer",
+        "app.auto_answer._extract_html",
+        "app.auto_answer._web_search",
+        "ddddocr",
+        "fontTools",
+        "PIL",
+        "PIL._tkinter_finder",
+        "aiohttp",
+        "websockets",
+        "openai",
+        "bs4",
+        "tomlkit",
+        "yarl",
+        "multidict",
+        "frozenlist",
+    ],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=[
+        "PySide6.Qt3DCore",
+        "PySide6.Qt3DInput",
+        "PySide6.Qt3DLogic",
+        "PySide6.Qt3DRender",
+        "PySide6.QtBluetooth",
+        "PySide6.QtCharts",
+        "PySide6.QtDataVisualization",
+        "PySide6.QtGraphs",
+        "PySide6.QtGrpc",
+        "PySide6.QtHelp",
+        "PySide6.QtHttpServer",
+        "PySide6.QtMultimedia",
+        "PySide6.QtMultimediaWidgets",
+        "PySide6.QtNfc",
+        "PySide6.QtOpenGL",
+        "PySide6.QtOpenGLWidgets",
+        "PySide6.QtPdf",
+        "PySide6.QtPdfWidgets",
+        "PySide6.QtPositioning",
+        "PySide6.QtPrintSupport",
+        "PySide6.QtProtobuf",
+        "PySide6.QtRemoteObjects",
+        "PySide6.QtScxml",
+        "PySide6.QtSensors",
+        "PySide6.QtSerialPort",
+        "PySide6.QtSpatialAudio",
+        "PySide6.QtStateMachine",
+        "PySide6.QtSvg",
+        "PySide6.QtSvgWidgets",
+        "PySide6.QtTest",
+        "PySide6.QtVirtualKeyboard",
+        "PySide6.QtWebChannel",
+        "PySide6.QtWebEngine",
+        "PySide6.QtWebEngineCore",
+        "PySide6.QtWebEngineQuick",
+        "PySide6.QtWebEngineWidgets",
+        "PySide6.QtWebView",
+        "PySide6.QtXml",
+        "scipy",
+        "scipy.libs",
+        "pandas",
+        "matplotlib",
+        "torch",
+    ],
+    noarchive=False,
+)
+
+pyz = PYZ(a.pure)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.datas,
+    [],
+    name="uXuexitong",
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=False,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+    icon="src/resources/ico/the_icon.ico",
+)
+
+coll = COLLECT(
+    exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name="uXuexitong",
+)

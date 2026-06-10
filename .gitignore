@@ -10,6 +10,7 @@ test/
 .vscode
 __pycache__
 *.spec
+!build.spec
 build
 CLAUDE.md
 pyrightconfig.json
