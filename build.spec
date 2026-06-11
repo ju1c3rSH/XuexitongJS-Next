@@ -1,20 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import sys
-from pathlib import Path
-
 
 block_cipher = None
 
-SRC = Path("src")
-
-datas = []
-
-for root in [SRC / "gui", SRC / "resources", SRC / "main_script"]:
-    for f in root.rglob("*"):
-        if f.is_file():
-            rel = f.relative_to(SRC)
-            datas.append((str(f), str(rel.parent)))
+datas = [
+    ("src/gui", "src/gui"),
+    ("src/resources", "src/resources"),
+    ("src/main_script", "src/main_script"),
+]
 
 a = Analysis(
     ["src/main.py"],
