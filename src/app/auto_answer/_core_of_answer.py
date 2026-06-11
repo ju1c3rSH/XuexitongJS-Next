@@ -43,11 +43,14 @@ def chat_with_openai(
         timeout=40,
         reasoning_effort="high",
         extra_body={"thinking": {"type": "enabled"}},
+        response_format={"type": "json_object"},
     )
     logging.info("Input Messages: %s", messages)
     logging.info("Reasoning Content: %s", completion.choices[0].message.reasoning_content)
-    #answer = completion.choices[0].message.content
-    return str(completion.choices[0].message.content)
+    content = completion.choices[0].message.content
+    if not content:
+        raise ValueError("AI returned empty content")
+    return content
 
 
 def answer_questions_batch(
@@ -55,7 +58,7 @@ def answer_questions_batch(
     image_refs: list[dict[str, Any]] | None = None,
     retry: int = 3,
 ) -> str:
-    """批量请求AI回答题目, 返回答案string, 如果多次请求失败, 则返回默认答案A"""
+    """批量请求AI回答题目, 返回JSON字符串, 多次失败则返回默认答案A的JSON"""
 
     search_context: str = ""
     course_config = global_config.get("auto_course", {})
@@ -79,22 +82,25 @@ def answer_questions_batch(
             {"role": "user", "content": prompt},
         ]
 
-    response: str = ""
-
     for i in range(retry):
         logging.info("第 %d 次请求中...", i + 1)
         try:
             response = chat_with_openai(messages)
+            data = json.loads(response)
+            if not isinstance(data.get("answers"), list):
+                raise ValueError("响应缺少 answers 数组")
             logging.info("批量请求成功")
-            return response.strip()
-        except (ConnectionError, OpenAIError, TimeoutError) as e:
-            logging.warning("批量请求失败 : %s", e)
+            return response
+        except (ConnectionError, OpenAIError, TimeoutError,
+                json.JSONDecodeError, ValueError) as e:
+            logging.warning("第 %d 次请求失败: %s", i + 1, e)
 
-    response = "\n".join(
-        [f"{q.get('题号', idx+1)}:A" for idx, q in enumerate(questions)]
-    )
     logging.error("多次请求失败, 使用默认答案A")
-    return response.strip()
+    defaults = [
+        {"question_id": str(q.get("题号", idx + 1)), "answer": "A"}
+        for idx, q in enumerate(questions)
+    ]
+    return json.dumps({"answers": defaults}, ensure_ascii=False)
 
 
 def answer_questions_file(
@@ -117,18 +123,12 @@ def answer_questions_file(
         )
         batch_answer: str = answer_questions_batch(batch, image_refs)
         logging.info("AI批量答案: %s", batch_answer)
-        answer_map = {}
-        for line in batch_answer.splitlines():
-            if ":" in line:
-                tid, ans = line.split(":", 1)
-                answer_map[tid.strip()] = ans.strip()
-        if set(answer_map.keys()) == {str(i) for i in range(1, len(batch) + 1)}:
-            answers = [answer_map[str(i)] for i in range(1, len(batch) + 1)]
-            for q, a in zip(batch, answers, strict=False):
-                q["AI答案"] = a
-        else:
-            for q in batch:
-                q["AI答案"] = answer_map.get(q["题号"], "ERROR")
+        data = json.loads(batch_answer)
+        q_map = {}
+        for item in data.get("answers", []):
+            q_map[str(item.get("question_id", ""))] = item.get("answer", "")
+        for q in batch:
+            q["AI答案"] = q_map.get(str(q.get("题号", "")), "ERROR")
         time.sleep(2)
     with output_json_path.open("w", encoding="utf-8") as f:
         json.dump(questions, f, ensure_ascii=False, indent=4)

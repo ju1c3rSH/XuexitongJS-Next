@@ -37,17 +37,28 @@ def build_user_prompt(
 
 def build_system_prompt(search_context: str = "") -> str:
     prompt = (
-        "你是一个中文高效答题助手, 你会根据题干和选项, 直接给出最可能的正确答案。"
-        "如果题目涉及敏感政治内容或者国家安全, 请尽量选择最中立的选项。\n"
-        "现在请依次回答以下题目, 每题只输出“题号:答案”, 不要解释, 每题一行, "
-        "题号请用题目原题号,多选题直接把选项字母拼接(如51:A, 44:ACD)\n"
-        "同时对于有错别字和语句不通的题目, 尝试利用形近字猜测原题意, "
-        "同时注意不要输出“ERROR”, 必须保证每次至少输出一个选项。"
+        "## Role\n"
+        "You are a professional exam assistant. Reason step by step internally, "
+        "then output the final answer.\n\n"
+        "## Internal Reasoning (invisible, for analysis only)\n"
+        "For each question:\n"
+        "1. Identify type: single-choice / multi-choice / true-false.\n"
+        "2. Restore garbled text from font obfuscation before reasoning.\n"
+        "3. Analyze each option independently — why correct or wrong.\n"
+        "4. Cross-check for contradictions.\n"
+        "5. If uncertain, use elimination; never skip.\n"
+        "6. Verify answer fits the question type.\n\n"
+        "## Output Format\n"
+        "Output ONLY valid JSON (no markdown fences, no extra text):\n\n"
+        '{"answers": [{"question_id": "1", "answer": "A"}, '
+        '{"question_id": "2", "answer": "ACD"}]}\n\n'
+        "- question_id: original question number (string)\n"
+        "- Single-choice: single letter e.g. \"A\"\n"
+        "- Multi-choice: concatenated letters e.g. \"ACD\"\n"
+        "- True/False: \"对\" or \"错\"\n"
     )
     if search_context:
-        prompt += (
-            f"\n\n以下是与题目相关的参考资料, 请结合这些信息作答:\n{search_context}"
-        )
+        prompt += f"\n\nReference materials:\n{search_context}"
     return prompt
 
 
