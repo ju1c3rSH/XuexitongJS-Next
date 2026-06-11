@@ -94,7 +94,6 @@ class CourseHandler:
             "Chrome": (webdriver.Chrome, ChromeOptions),
             "Firefox": (webdriver.Firefox, FirefoxOptions),
             "Edge": (webdriver.Edge, EdgeOptions),
-            
         }
 
         driver_cls, options_cls = driver_map.get(browser, driver_map["Firefox"])
@@ -106,7 +105,12 @@ class CourseHandler:
             options.add_argument("--lang=zh-CN")
         if headless:
             options.add_argument("--headless")
-        return driver_cls(options=options)
+
+        logging.info("正在通过 Selenium Manager 查找 %s 驱动并启动浏览器...", browser)
+        t0: float = time.time()
+        driver = driver_cls(options=options)
+        logging.info("%s 驱动初始化完成（耗时 %.1f 秒）", browser, time.time() - t0)
+        return driver
 
     def _parse_cookies(self, cookie_str: str) -> list:
         """将标准 cookie 字符串解析为 selenium cookies 列表"""
@@ -154,9 +158,14 @@ class CourseHandler:
 
     def _verify_browser(self, browser: str) -> None:
         """测试浏览器是否正常工作"""
+        t_start: float = time.time()
         self._driver = self._init_driver(headless=False, browser=browser)
+        t_driver: float = time.time()
+        logging.info("%s 进程已启动（%.1f 秒），正在验证...", browser, t_driver - t_start)
+
         self._driver.get("about:blank")
-        logging.info("已成功启动%s浏览器", browser)
+        logging.info("%s about:blank 加载完成（%.1f 秒）", browser, time.time() - t_driver)
+
         self._settings.browser = browser
         global_config["auto_course"]["browser"] = browser
         save_config()
@@ -194,11 +203,13 @@ class CourseHandler:
             ["Firefox", "Edge", "Chrome"] if self._settings.browser == ""
             else [self._settings.browser]
         ):
+            t_attempt: float = time.time()
             try:
                 self._verify_browser(browser)
+                logging.info("%s 启动成功（总计 %.1f 秒）", browser, time.time() - t_attempt)
                 break
             except (NoSuchDriverException, WebDriverException) as e:
-                logging.warning("%s内核启动失败: %s", browser, e)
+                logging.warning("%s 启动失败（%.1f 秒）: %s", browser, time.time() - t_attempt, e)
 
         if self._driver is None:
             logging.error("所有浏览器内核均启动失败, 请检查浏览器是否已安装")
