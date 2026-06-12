@@ -12,8 +12,8 @@ try:
 except ImportError:
     pass
 
-from PyQt5.QtCore import QtMsgType, qInstallMessageHandler
-from PyQt5.QtGui import QIcon
+from PyQt5.QtCore import Qt, QtMsgType, qInstallMessageHandler
+from PyQt5.QtGui import QFont, QIcon
 from PyQt5.QtWidgets import QApplication
 
 from app import TaskManager, utils
@@ -79,6 +79,16 @@ if __name__ == "__main__":
     application.setWindowIcon(QIcon(
         str(utils.static_path("src", "resources", "ico", "the_icon.ico"))
     ))
+
+    font = QFont()
+    font.setFamilies(["Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", "PingFang SC"])
+    font.setPointSize(10)
+    application.setFont(font)
+
+    application.setStyleSheet("""
+        QWidget { font-family: "Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", "PingFang SC"; }
+        QLabel { font-size: 13px; }
+    """)
 
     backend = TaskManager()
     window = MainWindow(backend)
