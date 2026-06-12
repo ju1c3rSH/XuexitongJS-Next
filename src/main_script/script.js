@@ -77,16 +77,16 @@ const IFRAME_MAIN_FEATURE_CLASS = '.content'; // 适配左右目录布局
 
 
 
-let allTaskDown = false; 
-let courseTree = [];
-let courseTreeIndex = 0;
-let nextLock = false; 
-let skipSign = 0;
-let answerTable = []; 
-let handleIframeLock = false;
-let nextCooldown = false;
-let videoLock = false; // 视频锁，防止多次点击播放按钮
-let hasEnterdct2 = false; // 临时补丁，防止多次进入测验题目处理流程
+var allTaskDown = false; 
+var courseTree = [];
+var courseTreeIndex = 0;
+var nextLock = false; 
+var skipSign = 0;
+var answerTable = []; 
+var handleIframeLock = false;
+var nextCooldown = false;
+var videoLock = false; // 视频锁，防止多次点击播放按钮
+var hasEnterdct2 = false; // 临时补丁，防止多次进入测验题目处理流程
 
 // 常驻 WebSocket 连接，天活检测标志
 window._uxAlive = true;
@@ -117,45 +117,7 @@ function connectWebSocket() {
 connectWebSocket();
 
 
-let _uxLastChapterText = '';
-
-function sendConfigUpdate(data) {
-    if (window._uxWs && window._uxWs.readyState === WebSocket.OPEN) {
-        window._uxWs.send(JSON.stringify({
-            type: 'configSync',
-            payload: data
-        }));
-    }
-}
-
-function checkPageContext() {
-    const url = location.href;
-    if (url.includes('courseid=')) {
-        sendConfigUpdate({
-            currentUrl: url,
-            historyUrl: url,
-        });
-    }
-}
-
-function startChapterObserver() {
-    const tree = document.getElementById('coursetree');
-    if (!tree) return;
-    new MutationObserver(function() {
-        const active = tree.querySelector('.posCatalog_active .posCatalog_name');
-        if (active && active.textContent.trim() !== _uxLastChapterText) {
-            _uxLastChapterText = active.textContent.trim();
-            sendConfigUpdate({
-                chapterTitle: _uxLastChapterText,
-                currentUrl: location.href,
-                historyUrl: location.href,
-            });
-        }
-    }).observe(tree, { childList: true, subtree: true, characterData: true });
-}
-
-
-let _uxLastChapterText = '';
+var _uxLastChapterText = '';
 
 function sendConfigUpdate(data) {
     if (window._uxWs && window._uxWs.readyState === WebSocket.OPEN) {

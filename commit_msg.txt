@@ -1,5 +1,0 @@
-feat(config): JS auto-syncs login/chapter config to Python
-
-- modules/core.js: sendConfigUpdate(), checkPageContext(), startChapterObserver()
-- modules/main.js: calls checkPageContext + startChapterObserver on script start
-- _driver_manager.py: configSync handler — updates history_url, current_url in config.toml
