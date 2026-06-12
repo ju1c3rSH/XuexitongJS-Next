@@ -1,9 +1,9 @@
-refactor(js): modularize script.js into 6 modules + build.js
+feat(protocol): JS structured quiz extraction, CSSOM font, send as JSON
 
-- core.js: constants, globals, anti-detection, WS always-on (_uxAlive, connectWebSocket)
-- nav.js: course tree, iframe traversal (getCourseTree through findInnerDocs)
-- video.js: speed control, playback, video quiz (muteVideo through autoPlayVideo)
-- pdf.js: PDF scrolling (findPdfElement, scrollPdfToBottom)
-- quiz.js: answer fill, fix mode (findWorkElement through answerFixes)
-- main.js: handleIframeChange orchestrator, startup (startScriptWithMask, main)
-- build.js: Node.js concatenation script, output = script.js
+- modules/quiz.js: getFontBase64() reads font-cxsecret via CSSStyleSheet.cssRules
+- modules/quiz.js: extractQuizData() extracts questions + images as structured JSON
+- modules/quiz.js: _nodeToText() preserves [图片#N] placeholders
+- modules/main.js: Work handler sends quizData instead of full HTML (outerHTML)
+- _driver_manager.py: quizData handler — saves font TTF + questions JSON directly
+- __init__.py: detects JSON vs HTML input, adapts pipeline accordingly
+- transmission reduced from ~100KB (full HTML) to ~2KB (structured JSON)

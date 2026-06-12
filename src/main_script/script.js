@@ -1019,6 +1019,52 @@ function answerFixes(testList, answerHistory) {
 }
 
 
+function getFontBase64() {
+    for (const sheet of document.styleSheets) {
+        try {
+            for (const rule of sheet.cssRules) {
+                if (rule instanceof CSSFontFaceRule
+                    && rule.style.fontFamily === '"font-cxsecret"') {
+                    const m = rule.style.src.match(/base64,([^)]+)/);
+                    if (m) return m[1];
+                }
+            }
+        } catch(e) {}
+    }
+    return '';
+}
+
+function _nodeToText(element, images) {
+    if (!element) return '';
+    const parts = [];
+    for (const child of element.childNodes) {
+        if (child.nodeType === 3) {
+            parts.push(child.textContent);
+        } else if (child.nodeName === 'IMG' && child.src) {
+            const idx = images.length;
+            images.push({ index: idx, src: child.src });
+            parts.push('[' + '图片#' + idx + ']');
+        } else {
+            parts.push(_nodeToText(child, images));
+        }
+    }
+    return parts.join('');
+}
+
+function extractQuizData(doc) {
+    const questions = [];
+    const images = [];
+    for (const q of doc.querySelectorAll('.TiMu.newTiMu')) {
+        const num = q.querySelector('i.fl')?.textContent.trim() ?? '';
+        const qtype = q.querySelector('.newZy_TItle')?.textContent.trim() ?? '';
+        const stem = _nodeToText(q.querySelector('.fontLabel'), images);
+        const options = [...q.querySelectorAll('li')].map(li => _nodeToText(li, images));
+        questions.push({ num, type: qtype, stem, options });
+    }
+    return { questions, images };
+}
+
+
 async function handleIframeChange(prama = DEFAULT_TEST_OPTION) { 
     if (allTaskDown) return;
 
@@ -1283,11 +1329,16 @@ async function handleIframeChange(prama = DEFAULT_TEST_OPTION) {
                                                             }
                                                         } else if (window._uxWs && window._uxWs.readyState === WebSocket.OPEN) {
                                                             console.log('已找到题目，开始传输');
-                                                            const htmlStr = testDoc.documentElement.outerHTML;
                                                             if (answerTable) answerTable = [];
-                                                            window._uxWs.send(JSON.stringify({
-                                                                type: 'testDocHtml',
-                                                                html: htmlStr
+                                                            const fontBase64 = (typeof getFontBase64 === 'function') ? getFontBase64() : '';
+                                                            const quizPayload = (typeof extractQuizData === 'function') ? extractQuizData(testDoc) : { questions: [], images: [] };
+                                                            const msg = {
+                                                                type: 'quizData',
+                                                                fontBase64: fontBase64,
+                                                                questions: quizPayload.questions,
+                                                                images: quizPayload.images
+                                                            };
+                                                            window._uxWs.send(JSON.stringify(msg)
                                                             }));
                                                             await new Promise(resolve => {
                                                                 function onMessage(event) {

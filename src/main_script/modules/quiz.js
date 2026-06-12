@@ -226,3 +226,49 @@ function answerFixes(testList, answerHistory) {
     console.log('修补答案完成:', answerJson);
     return answerJson;
 }
+
+
+function getFontBase64() {
+    for (const sheet of document.styleSheets) {
+        try {
+            for (const rule of sheet.cssRules) {
+                if (rule instanceof CSSFontFaceRule
+                    && rule.style.fontFamily === '"font-cxsecret"') {
+                    const m = rule.style.src.match(/base64,([^)]+)/);
+                    if (m) return m[1];
+                }
+            }
+        } catch(e) {}
+    }
+    return '';
+}
+
+function _nodeToText(element, images) {
+    if (!element) return '';
+    const parts = [];
+    for (const child of element.childNodes) {
+        if (child.nodeType === 3) {
+            parts.push(child.textContent);
+        } else if (child.nodeName === 'IMG' && child.src) {
+            const idx = images.length;
+            images.push({ index: idx, src: child.src });
+            parts.push('[' + '图片#' + idx + ']');
+        } else {
+            parts.push(_nodeToText(child, images));
+        }
+    }
+    return parts.join('');
+}
+
+function extractQuizData(doc) {
+    const questions = [];
+    const images = [];
+    for (const q of doc.querySelectorAll('.TiMu.newTiMu')) {
+        const num = q.querySelector('i.fl')?.textContent.trim() ?? '';
+        const qtype = q.querySelector('.newZy_TItle')?.textContent.trim() ?? '';
+        const stem = _nodeToText(q.querySelector('.fontLabel'), images);
+        const options = [...q.querySelectorAll('li')].map(li => _nodeToText(li, images));
+        questions.push({ num, type: qtype, stem, options });
+    }
+    return { questions, images };
+}

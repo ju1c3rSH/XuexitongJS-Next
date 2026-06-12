@@ -68,16 +68,35 @@ class CourseHandler:
                 if data.get("type") == "testDocHtml":
                     html_str: str = data.get("html", "")
                     logging.info("收到问题HTML, 长度: %d", len(html_str))
-
                     async with aiofiles.open(que_path, "w", encoding="utf-8") as f:
                         await f.write(html_str)
                     logging.info("HTML已保存到 %s", que_path)
+                    await answer_questions()
+                    async with aiofiles.open(ans_path, encoding="utf-8") as f:
+                        ans_json = await f.read()
+                    await websocket.send(ans_json)
+
+                elif data.get("type") == "quizData":
+                    font_base64: str = data.get("fontBase64", "")
+                    ttf = get_path_config(False, "obf_font")
+                    ttf.write_bytes(base64.b64decode(font_base64))
+
+                    quiz_data: dict = {
+                        "fontBase64": font_base64,
+                        "questions": data.get("questions", []),
+                        "images": data.get("images", []),
+                    }
+                    async with aiofiles.open(que_path, "w", encoding="utf-8") as f:
+                        await f.write(json.dumps(quiz_data, ensure_ascii=False))
+                    logging.info("quizData已保存, %d 题, %d 图片",
+                                 len(quiz_data["questions"]), len(quiz_data["images"]))
 
                     await answer_questions()
 
                     async with aiofiles.open(ans_path, encoding="utf-8") as f:
                         ans_json = await f.read()
                     await websocket.send(ans_json)
+
                 else:
                     logging.info("收到非HTML消息: %s", data)
         finally:

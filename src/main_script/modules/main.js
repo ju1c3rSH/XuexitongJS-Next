@@ -262,11 +262,16 @@ async function handleIframeChange(prama = DEFAULT_TEST_OPTION) {
                                                             }
                                                         } else if (window._uxWs && window._uxWs.readyState === WebSocket.OPEN) {
                                                             console.log('已找到题目，开始传输');
-                                                            const htmlStr = testDoc.documentElement.outerHTML;
                                                             if (answerTable) answerTable = [];
-                                                            window._uxWs.send(JSON.stringify({
-                                                                type: 'testDocHtml',
-                                                                html: htmlStr
+                                                            const fontBase64 = (typeof getFontBase64 === 'function') ? getFontBase64() : '';
+                                                            const quizPayload = (typeof extractQuizData === 'function') ? extractQuizData(testDoc) : { questions: [], images: [] };
+                                                            const msg = {
+                                                                type: 'quizData',
+                                                                fontBase64: fontBase64,
+                                                                questions: quizPayload.questions,
+                                                                images: quizPayload.images
+                                                            };
+                                                            window._uxWs.send(JSON.stringify(msg)
                                                             }));
                                                             await new Promise(resolve => {
                                                                 function onMessage(event) {
