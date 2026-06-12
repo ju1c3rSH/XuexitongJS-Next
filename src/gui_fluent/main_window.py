@@ -11,7 +11,6 @@ class MainWindow(FluentWindow):
         self.setWindowTitle("uXuexitong")
         self.setMinimumSize(960, 640)
         self.resize(1200, 760)
-
         self._setup_navigation()
 
     def _setup_navigation(self):
@@ -32,10 +31,10 @@ class MainWindow(FluentWindow):
         self.theme_page = ThemePage(parent=self)
         self.theme_page.setObjectName("themePage")
 
-        self.addSubInterface(self.script_page, FIF.VIDEO, "Script")
+        self.addSubInterface(self.script_page, FIF.VIDEO, "脚本")
         self.addSubInterface(self.api_page, FIF.SETTING, "API")
-        self.addSubInterface(self.settings_page, FIF.SYNC, "Settings")
+        self.addSubInterface(self.settings_page, FIF.SYNC, "设置")
         self.addSubInterface(
-            self.theme_page, FIF.PALETTE, "Theme",
+            self.theme_page, FIF.PALETTE, "主题",
             position=NavigationItemPosition.BOTTOM
         )

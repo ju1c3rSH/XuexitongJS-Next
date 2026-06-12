@@ -1,21 +1,15 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButton, QButtonGroup
 from qfluentwidgets import ScrollArea, setTheme, setThemeColor, Theme, RadioButton
-from qfluentwidgets import FluentIcon as FIF
 
 from app.utils import global_config, save_config
 
 
-THEME_NAMES = [
-    "aoguchi", "ink", "gummy", "prussian", "regal",
-    "rosmarinus", "silence", "vandyke", "vira",
-]
-
+THEME_NAMES = ["aoguchi", "ink", "gummy", "prussian", "regal", "rosmarinus", "silence", "vandyke", "vira"]
 THEME_LABELS = {
-    "aoguchi": "Aoguchi", "ink": "Ink", "gummy": "Gummy",
-    "prussian": "Prussian", "regal": "Regal", "rosmarinus": "Rosmarinus",
-    "silence": "Silence", "vandyke": "Vandyke", "vira": "Vira",
+    "aoguchi": "青口", "ink": "墨染", "gummy": "软糖",
+    "prussian": "普鲁士", "regal": "帝政", "rosmarinus": "迷迭香",
+    "silence": "寂静", "vandyke": "棕褐", "vira": "炫彩",
 }
-
 THEME_COLORS = {
     "aoguchi": "#6bb3b7", "ink": "#ffffff", "gummy": "#fc6076",
     "prussian": "#003153", "regal": "#60efdb", "rosmarinus": "#7c5ca8",
@@ -40,24 +34,27 @@ class ThemePage(ScrollArea):
 
         view = QWidget()
         layout = QVBoxLayout(view)
-        layout.setContentsMargins(36, 20, 36, 20)
+        layout.setContentsMargins(36, 24, 36, 24)
         layout.setSpacing(16)
 
-        # Fluent mode selector
-        lbl = QLabel("Fluent Theme Mode")
+        title = QLabel("主题设置")
+        title.setStyleSheet("font-size: 26px; font-weight: bold;")
+        layout.addWidget(title)
+
+        lbl = QLabel("Fluent 主题模式")
         lbl.setStyleSheet("font-size: 16px; font-weight: bold;")
         layout.addWidget(lbl)
 
-        from PyQt5.QtWidgets import QButtonGroup
-        self.rb_light = RadioButton("Light")
-        self.rb_dark = RadioButton("Dark")
-        self.rb_auto = RadioButton("System Auto")
-        self._mode_group = QButtonGroup(self)
-        self._mode_group.addButton(self.rb_light)
-        self._mode_group.addButton(self.rb_dark)
-        self._mode_group.addButton(self.rb_auto)
+        self.rb_light = RadioButton("浅色")
+        self.rb_dark = RadioButton("深色")
+        self.rb_auto = RadioButton("跟随系统")
+        mode_group = QButtonGroup(self)
+        mode_group.addButton(self.rb_light)
+        mode_group.addButton(self.rb_dark)
+        mode_group.addButton(self.rb_auto)
 
         mode_row = QHBoxLayout()
+        mode_row.setSpacing(24)
         mode_row.addWidget(self.rb_light)
         mode_row.addWidget(self.rb_dark)
         mode_row.addWidget(self.rb_auto)
@@ -70,60 +67,53 @@ class ThemePage(ScrollArea):
         else:
             self.rb_auto.setChecked(True)
 
-        self._mode_group.buttonClicked.connect(self._on_mode_changed)
+        mode_group.buttonClicked.connect(self._on_mode_changed)
 
-        # Custom themes
-        lbl2 = QLabel("Custom Color Themes")
+        lbl2 = QLabel("自定义配色")
         lbl2.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 20px;")
         layout.addWidget(lbl2)
 
-        grid_layout = QVBoxLayout()
-        row = None
+        grid = QVBoxLayout()
+        grid.setSpacing(12)
         for i, name in enumerate(THEME_NAMES):
             if i % 3 == 0:
                 row = QHBoxLayout()
-                grid_layout.addLayout(row)
-
+                row.setSpacing(12)
+                grid.addLayout(row)
             btn = QPushButton(THEME_LABELS.get(name, name))
             color = THEME_COLORS.get(name, "#888")
+            is_light = name in ("ink", "silence", "vira")
             btn.setStyleSheet(f"""
                 QPushButton {{
                     background-color: {color};
-                    color: {'#fff' if name not in ['ink', 'silence', 'vira'] else '#000'};
+                    color: {'#000' if is_light else '#fff'};
                     border-radius: 8px;
-                    padding: 20px;
-                    font-size: 13px;
+                    padding: 20px 0;
+                    font-size: 14px;
                     font-weight: bold;
                 }}
-                QPushButton:hover {{
-                    opacity: 0.8;
-                }}
+                QPushButton:hover {{ opacity: 0.8; }}
             """)
             btn.setMinimumSize(140, 60)
             btn.clicked.connect(lambda checked, n=name: self._on_theme_click(n))
-            if current == name:
-                btn.setProperty("selected", True)
-                btn.setStyleSheet(btn.styleSheet() + "border: 3px solid white;")
             row.addWidget(btn)
 
-        layout.addLayout(grid_layout)
-
+        layout.addLayout(grid)
         layout.addStretch()
         self.setWidget(view)
         self.setWidgetResizable(True)
 
     def _on_mode_changed(self):
-        rb = self._mode_group.checkedButton()
-        mode = "auto"
+        rb = self.sender()
         if rb == self.rb_light:
-            mode = "light"
             setTheme(Theme.LIGHT)
+            mode = "light"
         elif rb == self.rb_dark:
-            mode = "dark"
             setTheme(Theme.DARK)
+            mode = "dark"
         else:
-            mode = "auto"
             setTheme(Theme.AUTO)
+            mode = "auto"
         ui_cfg = global_config.setdefault("ui", {})
         ui_cfg["fluent_mode"] = mode
         save_config()

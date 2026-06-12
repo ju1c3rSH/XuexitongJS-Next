@@ -16,35 +16,38 @@ class ScriptPage(ScrollArea):
     def _setup_ui(self):
         view = QWidget()
         layout = QVBoxLayout(view)
-        layout.setContentsMargins(36, 20, 36, 20)
-        layout.setSpacing(14)
+        layout.setContentsMargins(36, 24, 36, 24)
+        layout.setSpacing(16)
 
-        title = QLabel("Script Control")
-        title.setStyleSheet("font-size: 22px; font-weight: bold; color: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #60efdb, stop:1 #79ceed);")
+        title = QLabel("脚本控制")
+        title.setStyleSheet("font-size: 26px; font-weight: bold;")
         layout.addWidget(title)
 
-        self.btn_launch = PrimaryPushButton(FIF.PLAY, "Launch Browser")
+        self.btn_launch = PrimaryPushButton(FIF.PLAY, "启动浏览器")
+        self.btn_launch.setMinimumHeight(44)
         self.btn_launch.clicked.connect(self._on_launch)
         layout.addWidget(self.btn_launch)
 
-        self.btn_inject = PrimaryPushButton(FIF.SEND, "Inject Script")
+        self.btn_inject = PrimaryPushButton(FIF.SEND, "注入脚本")
+        self.btn_inject.setMinimumHeight(44)
         self.btn_inject.clicked.connect(self._on_inject)
         self.btn_inject.setEnabled(False)
         layout.addWidget(self.btn_inject)
 
-        self.btn_mouse = PrimaryPushButton(FIF.ZOOM, "Mouse Simulation")
+        self.btn_mouse = PrimaryPushButton(FIF.ZOOM, "开启鼠标模拟")
+        self.btn_mouse.setMinimumHeight(44)
         self.btn_mouse.clicked.connect(self._on_mouse)
         self.btn_mouse.setEnabled(False)
         layout.addWidget(self.btn_mouse)
 
-        group = SettingCardGroup("Behavior", view)
+        group = SettingCardGroup("自动化行为", view)
         self.sw_keep = SwitchSettingCard(
-            FIF.UPDATE, "Keep Login", "Restore cookies on startup"
+            FIF.UPDATE, "保持登录", "启动时恢复 Cookie"
         )
         group.addSettingCard(self.sw_keep)
 
         self.sw_speed = SwitchSettingCard(
-            FIF.SPEED_HIGH, "Force Speed", "Override video playback speed"
+            FIF.SPEED_HIGH, "强制倍速", "覆盖视频播放速度"
         )
         group.addSettingCard(self.sw_speed)
         layout.addWidget(group)
@@ -55,7 +58,7 @@ class ScriptPage(ScrollArea):
 
     def _guard(self) -> bool:
         if self._busy:
-            InfoBar.warning("Busy", "Please wait for current task", parent=self)
+            InfoBar.warning("操作中", "请等待当前任务完成", parent=self)
             return False
         return True
 
@@ -64,14 +67,15 @@ class ScriptPage(ScrollArea):
             return
         self._busy = True
         self.btn_launch.setEnabled(False)
-        self.btn_launch.setText("Launching...")
+        self.btn_launch.setText("启动中...")
 
         def done(jid, r):
             self._busy = False
             self.btn_launch.setEnabled(True)
-            self.btn_launch.setText("Launch Browser")
+            self.btn_launch.setText("启动浏览器")
             self.btn_inject.setEnabled(True)
-            InfoBar.success("Done", "Browser launched", parent=self)
+            InfoBar.success("完成", "浏览器已启动", parent=self)
+            self.backend.finished.disconnect(done)
 
         self.backend.finished.connect(done)
         self.backend.dispatch("launch_driver", [])
@@ -81,14 +85,15 @@ class ScriptPage(ScrollArea):
             return
         self._busy = True
         self.btn_inject.setEnabled(False)
-        self.btn_inject.setText("Injecting...")
+        self.btn_inject.setText("注入中...")
 
         def done(jid, r):
             self._busy = False
             self.btn_inject.setEnabled(True)
-            self.btn_inject.setText("Inject Script")
+            self.btn_inject.setText("注入脚本")
             self.btn_mouse.setEnabled(True)
-            InfoBar.success("Done", "Script injected", parent=self)
+            InfoBar.success("完成", "脚本已注入", parent=self)
+            self.backend.finished.disconnect(done)
 
         self.backend.finished.connect(done)
         self.backend.dispatch("launch_script", [])
@@ -97,4 +102,4 @@ class ScriptPage(ScrollArea):
         if not self._guard():
             return
         self.backend.dispatch("pretend_active", [])
-        InfoBar.info("Simulation", "Mouse simulation started", parent=self)
+        InfoBar.info("模拟", "鼠标模拟已启动", parent=self)

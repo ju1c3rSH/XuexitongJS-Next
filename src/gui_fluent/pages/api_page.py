@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
 from qfluentwidgets import ScrollArea, LineEdit, PasswordLineEdit
 from qfluentwidgets import SwitchSettingCard
 from qfluentwidgets import PrimaryPushButton, InfoBar
@@ -19,31 +19,43 @@ class ApiPage(ScrollArea):
 
         view = QWidget()
         layout = QVBoxLayout(view)
-        layout.setContentsMargins(36, 20, 36, 20)
+        layout.setContentsMargins(36, 24, 36, 24)
         layout.setSpacing(16)
 
+        title = QLabel("API 配置")
+        title.setStyleSheet("font-size: 26px; font-weight: bold;")
+        layout.addWidget(title)
+
+        lbl_key = QLabel("API Key")
+        lbl_key.setStyleSheet("font-size: 14px;")
+        layout.addWidget(lbl_key)
         self.api_key = PasswordLineEdit()
         self.api_key.setText(oa.get("api_key", ""))
         self.api_key.setPlaceholderText("sk-...")
+        layout.addWidget(self.api_key)
 
+        lbl_url = QLabel("Base URL")
+        lbl_url.setStyleSheet("font-size: 14px;")
+        layout.addWidget(lbl_url)
         self.base_url = LineEdit()
         self.base_url.setText(oa.get("base_url", "https://api.moonshot.cn/v1"))
+        layout.addWidget(self.base_url)
 
+        lbl_model = QLabel("Model")
+        lbl_model.setStyleSheet("font-size: 14px;")
+        layout.addWidget(lbl_model)
         self.model = LineEdit()
         self.model.setText(oa.get("model", "kimi-k2-0905-preview"))
+        layout.addWidget(self.model)
 
         self.vision = SwitchSettingCard(
-            FIF.VIEW, "Enable Vision",
-            "Send images to multi-modal models"
+            FIF.VIEW, "多模态视觉", "向多模态模型发送图片"
         )
         self.vision.setChecked(oa.get("enable_vision", False))
-
-        layout.addWidget(self.api_key)
-        layout.addWidget(self.base_url)
-        layout.addWidget(self.model)
         layout.addWidget(self.vision)
 
-        btn = PrimaryPushButton(FIF.SAVE, "Save")
+        btn = PrimaryPushButton(FIF.SAVE, "保存")
+        btn.setMinimumHeight(40)
         btn.clicked.connect(self._on_save)
         layout.addWidget(btn)
 
@@ -58,4 +70,4 @@ class ApiPage(ScrollArea):
         oa["model"] = self.model.text()
         oa["enable_vision"] = self.vision.isChecked()
         save_config()
-        InfoBar.success("Saved", "API config saved", parent=self)
+        InfoBar.success("已保存", "API 配置已保存", parent=self)
