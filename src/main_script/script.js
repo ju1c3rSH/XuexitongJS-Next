@@ -87,19 +87,33 @@ let nextCooldown = false;
 let videoLock = false; // 视频锁，防止多次点击播放按钮
 let hasEnterdct2 = false; // 临时补丁，防止多次进入测验题目处理流程
 
-if (DEFAULT_TEST_OPTION === 1) {
-    console.log('已开启课后答题功能,正在创建端口连接...');
-    window._ws = new WebSocket("ws://localhost:8765");
-    window._ws.onopen = function() {
-        console.log("WebSocket已连接Python端口");
-    };
-    window._ws.onerror = function(e) {
-        console.warn("WebSocket连接失败", e);
-    };
-    window._ws.onclose = function() {
-        console.warn("WebSocket已关闭");
-    };
+// 常驻 WebSocket 连接，天活检测标志
+window._uxAlive = true;
+window._uxWs = null;
+
+function connectWebSocket() {
+    if (window._uxWs && window._uxWs.readyState === WebSocket.OPEN) return;
+    if (window._uxWs && window._uxWs.readyState === WebSocket.CONNECTING) return;
+    try {
+        window._uxWs = new WebSocket("ws://localhost:8765");
+        window._uxWs.onopen = function() {
+            console.log("[uX] WebSocket已连接Python端口");
+            window._uxAlive = true;
+        };
+        window._uxWs.onerror = function(e) {
+            console.warn("[uX] WebSocket连接失败", e);
+        };
+        window._uxWs.onclose = function() {
+            console.warn("[uX] WebSocket已关闭，3秒后重连");
+            window._uxWs = null;
+            setTimeout(connectWebSocket, 3000);
+        };
+    } catch (e) {
+        console.warn("[uX] WebSocket创建失败", e);
+        setTimeout(connectWebSocket, 3000);
+    }
 }
+connectWebSocket();
 
 
 
@@ -1265,11 +1279,11 @@ async function handleIframeChange(prama = DEFAULT_TEST_OPTION) {
                                                                 }
                                                                 
                                                             }
-                                                        } else if (window._ws && window._ws.readyState === 1) {
+                                                        } else if (window._uxWs && window._uxWs.readyState === WebSocket.OPEN) {
                                                             console.log('已找到题目，开始传输');
                                                             const htmlStr = testDoc.documentElement.outerHTML;
                                                             if (answerTable) answerTable = [];
-                                                            window._ws.send(JSON.stringify({
+                                                            window._uxWs.send(JSON.stringify({
                                                                 type: 'testDocHtml',
                                                                 html: htmlStr
                                                             }));
@@ -1283,7 +1297,7 @@ async function handleIframeChange(prama = DEFAULT_TEST_OPTION) {
                                                                         } catch (e) {
                                                                             // 不是json就忽略
                                                                             if (event.data === '收到') {
-                                                                                window._ws.removeEventListener('message', onMessage);
+                                                                                window._uxWs.removeEventListener('message', onMessage);
                                                                                 console.log('收到Python回信，继续后续流程');
                                                                                 resolve();
                                                                             }
@@ -1291,14 +1305,14 @@ async function handleIframeChange(prama = DEFAULT_TEST_OPTION) {
                                                                         }
                                                                         // 如果能解析为json，自动填答
                                                                         autoFillAnswers(testList, answerJson);
-                                                                        window._ws.removeEventListener('message', onMessage);
+                                                                        window._uxWs.removeEventListener('message', onMessage);
                                                                         console.log('已自动填充答案');
                                                                         resolve();
                                                                     } catch (e) {
                                                                         console.warn('处理回信时出错', e);
                                                                     }
                                                                 }
-                                                                window._ws.addEventListener('message', onMessage);
+                                                                window._uxWs.addEventListener('message', onMessage);
                                                             });
                                                             //confirm('已创建答案，准备提交');
                                                             submitBtn.click();
@@ -1431,7 +1445,17 @@ function startScriptWithMask(mainFunc) { // 启动脚本并创建遮罩，因为
 }
 
 function main() {
-    console.log('脚本已启动, 开始刷课...');
+    console.log('[uX] 脚本已启动, 开始刷课...');
+    // 通知 Python 页面已加载
+    try {
+        if (window._uxWs && window._uxWs.readyState === WebSocket.OPEN) {
+            window._uxWs.send(JSON.stringify({
+                type: "pageReady",
+                url: location.href,
+                title: document.title
+            }));
+        }
+    } catch(e) {}
     
     const leftEl = document.querySelector(IFRAME_MAIN_FEATURE_CLASS);
     if (leftEl) {

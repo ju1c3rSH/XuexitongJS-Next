@@ -51,30 +51,37 @@ class CourseHandler:
         self._driver: webdriver.Firefox | webdriver.Edge | webdriver.Chrome | None = None
         self._ws_thread: threading.Thread | None = None
         self._mouse_thread: threading.Thread | None = None
+        self._monitor_thread: threading.Thread | None = None
+        self._ws_client_count: int = 0
         self._settings = load_settings()
         self._script_code: str = ""
+        self._monitor_active: bool = False
 
     async def _messenger(self, websocket: websockets.ServerConnection) -> None:
         """WebSocket 消息处理器"""
+        self._ws_client_count += 1
         que_path: Path = get_path_config(False, "original_questions")
         ans_path: Path = get_path_config(False, "answers")
-        async for msg in websocket:
-            data: dict = json.loads(msg)
-            if data.get("type") == "testDocHtml":
-                html_str: str = data.get("html", "")
-                logging.info("收到问题HTML, 长度: %d", len(html_str))
+        try:
+            async for msg in websocket:
+                data: dict = json.loads(msg)
+                if data.get("type") == "testDocHtml":
+                    html_str: str = data.get("html", "")
+                    logging.info("收到问题HTML, 长度: %d", len(html_str))
 
-                async with aiofiles.open(que_path, "w", encoding="utf-8") as f:
-                    await f.write(html_str)
-                logging.info("HTML已保存到 %s", que_path)
+                    async with aiofiles.open(que_path, "w", encoding="utf-8") as f:
+                        await f.write(html_str)
+                    logging.info("HTML已保存到 %s", que_path)
 
-                await answer_questions()
+                    await answer_questions()
 
-                async with aiofiles.open(ans_path, encoding="utf-8") as f:
-                    ans_json = await f.read()
-                await websocket.send(ans_json)
-            else:
-                logging.info("收到非HTML消息: %s", data)
+                    async with aiofiles.open(ans_path, encoding="utf-8") as f:
+                        ans_json = await f.read()
+                    await websocket.send(ans_json)
+                else:
+                    logging.info("收到非HTML消息: %s", data)
+        finally:
+            self._ws_client_count -= 1
 
     def _launch_websocket(self):
         """启动 WebSocket 服务器"""
@@ -146,6 +153,58 @@ class CourseHandler:
             globalThis.SPEED = {self._settings.speed};
         """
         return "\n".join([options, main_script])
+
+    def _start_script_monitor(self) -> None:
+        """启动 JS 存活监控线程（双速检测）"""
+        if self._monitor_active:
+            return
+        self._monitor_active = True
+
+        def monitor_loop():
+            fast_mode = True
+            fast_count = 0
+            while self._monitor_active:
+                if self._ws_client_count > 0:
+                    fast_mode = False
+                    fast_count = 0
+                else:
+                    if not fast_mode:
+                        fast_mode = True
+                    fast_count += 1
+
+                if fast_mode and fast_count >= 3:
+                    try:
+                        alive = self._driver.execute_script(
+                            "return !!window._uxAlive"
+                        )
+                        if alive:
+                            fast_count = 0
+                        else:
+                            logging.warning("[uX] JS 存活检测失败，重新注入...")
+                            self._inject_script()
+                            fast_count = 0
+                    except Exception:
+                        fast_count = 0
+
+                interval = 3 if fast_mode else 30
+                time.sleep(interval)
+
+            self._monitor_active = False
+
+        self._monitor_thread = threading.Thread(target=monitor_loop, daemon=True)
+        self._monitor_thread.start()
+        logging.info("[uX] 存活监控已启动")
+
+    def _inject_script(self) -> None:
+        """重新注入 JS 脚本"""
+        try:
+            self._script_code = self._init_script()
+            handles = self._driver.window_handles
+            self._driver.switch_to.window(handles[-1])
+            self._driver.execute_script(self._script_code)
+            logging.info("[uX] JS 脚本重新注入成功")
+        except Exception as e:
+            logging.error("[uX] JS 脚本重新注入失败: %s", e)
 
     def _launch_ws_server(self) -> None:
         """启动 WebSocket 服务器线程"""
@@ -226,6 +285,8 @@ class CourseHandler:
         time.sleep(2)
         self._driver.execute_script(self._script_code)
         logging.info("js脚本注入成功")
+
+        self._start_script_monitor()
 
     def pretend_active(self) -> None:
         """模拟鼠标活动, 防止被检测为挂机"""

@@ -1,0 +1,9 @@
+feat(ws): WebSocket always-on, JS dead detection, auto re-injection
+
+- script.js: WebSocket always connected (removed DEFAULT_TEST_OPTION==1 guard)
+- script.js: auto-reconnect on close (3s delay)
+- script.js: _uxAlive flag for Python-side detection
+- script.js: pageReady message sent on page load
+- _driver_manager.py: dual-speed monitor thread (3s/30s) for JS liveness
+- _driver_manager.py: automatic execute_script re-injection on JS death
+- _driver_manager.py: track WS client count for fast death detection
