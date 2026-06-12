@@ -85,7 +85,6 @@ class ScriptPage(ScrollArea):
         btn_clear = QPushButton(tr("Clear"))
         btn_clear.setFixedSize(60, 24)
         btn_clear.setStyleSheet("font-size: 12px;")
-        btn_clear.clicked.connect(self._log_view.clear)
         log_h.addWidget(btn_clear)
         layout.addWidget(log_header)
 
@@ -97,6 +96,7 @@ class ScriptPage(ScrollArea):
             "font-family: 'Cascadia Code', 'Consolas', 'Courier New', monospace; font-size: 12px;"
         )
         layout.addWidget(self._log_view, stretch=1)
+        btn_clear.clicked.connect(self._log_view.clear)
         self.setWidget(view)
         self.setWidgetResizable(True)
 
