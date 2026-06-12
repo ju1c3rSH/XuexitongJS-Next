@@ -1,3 +1,4 @@
+/* uXuexitong auto-built */
 /**使用说明：
  * uXuexitong 学习通一键全自动刷课脚本
  * 
@@ -114,7 +115,6 @@ function connectWebSocket() {
     }
 }
 connectWebSocket();
-
 
 
 function getCourseTree() {
@@ -737,6 +737,7 @@ function autoPlayVideo(innerDoc, videoDiv, launchBtn, target, playControlBtn, pa
     });
 }
 
+
 function findPdfElement(innerDoc) {
     const finalIframe = innerDoc.getElementById(PDF_IFRAME_ID);
     if (!finalIframe) {
@@ -1016,6 +1017,7 @@ function answerFixes(testList, answerHistory) {
     console.log('修补答案完成:', answerJson);
     return answerJson;
 }
+
 
 async function handleIframeChange(prama = DEFAULT_TEST_OPTION) { 
     if (allTaskDown) return;
@@ -1500,3 +1502,5 @@ if (DEFAULT_SPEED_OPTION) {
 
 // 启动入口
 startScriptWithMask(main);
+
+

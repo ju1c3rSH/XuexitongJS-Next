@@ -1,9 +1,9 @@
-feat(ws): WebSocket always-on, JS dead detection, auto re-injection
+refactor(js): modularize script.js into 6 modules + build.js
 
-- script.js: WebSocket always connected (removed DEFAULT_TEST_OPTION==1 guard)
-- script.js: auto-reconnect on close (3s delay)
-- script.js: _uxAlive flag for Python-side detection
-- script.js: pageReady message sent on page load
-- _driver_manager.py: dual-speed monitor thread (3s/30s) for JS liveness
-- _driver_manager.py: automatic execute_script re-injection on JS death
-- _driver_manager.py: track WS client count for fast death detection
+- core.js: constants, globals, anti-detection, WS always-on (_uxAlive, connectWebSocket)
+- nav.js: course tree, iframe traversal (getCourseTree through findInnerDocs)
+- video.js: speed control, playback, video quiz (muteVideo through autoPlayVideo)
+- pdf.js: PDF scrolling (findPdfElement, scrollPdfToBottom)
+- quiz.js: answer fill, fix mode (findWorkElement through answerFixes)
+- main.js: handleIframeChange orchestrator, startup (startScriptWithMask, main)
+- build.js: Node.js concatenation script, output = script.js
