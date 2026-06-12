@@ -20,9 +20,16 @@ class MainWindow(FluentWindow):
         from .pages.theme_page import ThemePage
 
         self.script_page = ScriptPage(self.backend, parent=self)
+        self.script_page.setObjectName("scriptPage")
+
         self.api_page = ApiPage(self.backend, parent=self)
+        self.api_page.setObjectName("apiPage")
+
         self.settings_page = SettingsPage(self.backend, parent=self)
+        self.settings_page.setObjectName("settingsPage")
+
         self.theme_page = ThemePage(parent=self)
+        self.theme_page.setObjectName("themePage")
 
         self.addSubInterface(self.script_page, FIF.VIDEO, "Script")
         self.addSubInterface(self.api_page, FIF.SETTING, "API")

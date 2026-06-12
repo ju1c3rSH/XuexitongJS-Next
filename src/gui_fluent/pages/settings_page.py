@@ -1,5 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel
-from qfluentwidgets import ScrollArea
+from PyQt5.QtWidgets import QVBoxLayout, QWidget, QLabel
+from qfluentwidgets import ScrollArea, ComboBox, LineEdit
 
 from app import TaskManager
 
@@ -16,9 +16,19 @@ class SettingsPage(ScrollArea):
         layout.setContentsMargins(36, 20, 36, 20)
         layout.setSpacing(16)
 
-        title = QLabel("System Settings")
-        title.setStyleSheet("font-size: 24px; font-weight: bold;")
-        layout.addWidget(title)
+        lbl = QLabel("Browser Engine")
+        lbl.setStyleSheet("font-size: 14px; font-weight: bold;")
+        layout.addWidget(lbl)
+        cb = ComboBox()
+        cb.addItems(["Auto", "Chrome", "Edge", "Firefox"])
+        layout.addWidget(cb)
+
+        lbl2 = QLabel("HTTP Proxy")
+        lbl2.setStyleSheet("font-size: 14px; font-weight: bold;")
+        layout.addWidget(lbl2)
+        le = LineEdit()
+        le.setPlaceholderText("Optional: http://127.0.0.1:8080")
+        layout.addWidget(le)
 
         layout.addStretch()
         self.setWidget(view)
