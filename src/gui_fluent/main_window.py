@@ -9,8 +9,8 @@ class MainWindow(FluentWindow):
         super().__init__()
         self.backend = backend
         self.setWindowTitle("uXuexitong")
-        self.setMinimumSize(960, 640)
-        self.resize(1200, 760)
+        self.setMinimumSize(860, 560)
+        self.resize(1024, 680)
         self._setup_navigation()
 
     def _setup_navigation(self):

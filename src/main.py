@@ -12,9 +12,8 @@ try:
 except ImportError:
     pass
 
-# 高 DPI 缩放（2K/4K 屏幕必需）
+# 高 DPI 缩放 — 仅启用基本感知，不强制自动缩放（避免与 Windows 系统缩放叠加）
 os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "1"
-os.environ["QT_AUTO_SCREEN_SCALE_FACTOR"] = "1"
 
 from PyQt5.QtCore import Qt, QtMsgType, qInstallMessageHandler
 from PyQt5.QtGui import QFont, QIcon
@@ -79,7 +78,6 @@ if __name__ == "__main__":
         utils.check_file
     )
 
-    QApplication.setAttribute(Qt.AA_EnableHighDpiScaling)
     application = QApplication(sys.argv)
     application.setWindowIcon(QIcon(
         str(utils.static_path("src", "resources", "ico", "the_icon.ico"))
@@ -87,7 +85,7 @@ if __name__ == "__main__":
 
     font = QFont()
     font.setFamilies(["Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", "PingFang SC"])
-    font.setPointSize(10)
+    font.setPointSize(9)
     application.setFont(font)
 
     backend = TaskManager()
