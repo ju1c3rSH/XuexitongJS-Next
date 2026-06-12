@@ -83,10 +83,14 @@ if __name__ == "__main__":
         str(utils.static_path("src", "resources", "ico", "the_icon.ico"))
     ))
 
-    font = QFont()
-    font.setFamilies(["Microsoft YaHei UI", "Microsoft YaHei", "Segoe UI", "PingFang SC"])
-    font.setPointSize(9)
+    font = QFont("Microsoft YaHei", 9)
     application.setFont(font)
+
+    application.setStyleSheet("""
+        QWidget, QLabel, QLineEdit, QSpinBox, QComboBox, QPushButton {
+            font-family: "Microsoft YaHei", "Microsoft YaHei UI", "SimHei", "Noto Sans CJK SC", sans-serif;
+        }
+    """)
 
     backend = TaskManager()
     window = MainWindow(backend)
