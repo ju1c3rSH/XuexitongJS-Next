@@ -13,4 +13,4 @@ class LogHandler(logging.Handler):
 
     def emit(self, record: logging.LogRecord):
         msg = self.format(record)
-        self.signal.emit(msg)
+        self.signal.message.emit(msg)
