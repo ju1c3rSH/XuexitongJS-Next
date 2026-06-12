@@ -17,6 +17,7 @@ from selenium.webdriver.edge.options import Options as EdgeOptions
 from selenium.webdriver.firefox.options import Options as FirefoxOptions
 
 from .auto_answer import answer_questions
+from .config import ConfigProvider
 from .utils import get_path_config, global_config, save_config
 
 
@@ -175,10 +176,14 @@ class CourseHandler:
             main_script: str = f.read()
 
         logging.info("脚本已加载, 长度: %d", len(main_script))
+
+        behavior = ConfigProvider.get_behavior()
         options: str = f"""
             globalThis.LAUNCH_OPTION = 1;
             globalThis.FORCE_SPEED = {str(self._settings.force_speed).lower()};
             globalThis.SPEED = {self._settings.speed};
+            globalThis.POLL_INTERVAL_MS = {behavior.poll_interval_ms};
+            globalThis.POLL_MAX_RETRY = {behavior.poll_max_retry};
         """
         return "\n".join([options, main_script])
 

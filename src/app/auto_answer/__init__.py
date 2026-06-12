@@ -8,6 +8,7 @@ from pathlib import Path
 
 import aiofiles
 
+from ..config import ConfigProvider
 from ..utils import get_path_config as get_path
 from ._core_of_answer import answer_questions_file, extract_simple_answers
 from ._create_map import create_font_mapping
@@ -73,5 +74,8 @@ async def answer_questions() -> None:
     create_font_mapping(ttf_path, std_font_path, mapping_json_path)
     decode_questions(questions_path, decoded_json_path, mapping_json_path)
 
-    answer_questions_file(decoded_json_path, answered_json_path, image_refs)
+    quiz_cfg = ConfigProvider.get_quiz()
+    ai_cfg = ConfigProvider.get_ai()
+    answer_questions_file(decoded_json_path, answered_json_path, image_refs,
+                          quiz_cfg=quiz_cfg, ai_cfg=ai_cfg)
     extract_simple_answers(answered_json_path, simplified_json_path)

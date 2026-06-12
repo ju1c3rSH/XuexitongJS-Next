@@ -12,6 +12,7 @@ model = "kimi-k2-0905-preview"
 enable_vision = false
 temperature = 0.7
 max_tokens = 4096
+enable_thinking = true
 
 # 刷课相关配置
 

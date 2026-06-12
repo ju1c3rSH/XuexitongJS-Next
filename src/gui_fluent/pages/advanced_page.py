@@ -72,6 +72,22 @@ class AdvancedPage(ScrollArea):
         self._temp = self._spin_row(layout, "Temperature (x100)", int(float(oa.get("temperature", 0.7)) * 100), 0, 200)
         self._max_tok = self._spin_row(layout, "Max Tokens", oa.get("max_tokens", 4096), 256, 65536)
 
+        self.sw_thinking = SwitchSettingCard(
+            FIF.ROBOT, "Enable Thinking",
+            "When enabled, temperature and max_tokens use model defaults (recommended)"
+        )
+        self.sw_thinking.setChecked(oa.get("enable_thinking", True))
+        self.sw_thinking.checkedChanged.connect(self._on_thinking_toggled)
+        self.sw_thinking.checkedChanged.connect(self._auto_save)
+        layout.addWidget(self.sw_thinking)
+
+        self._thinking_note = QLabel(
+            "Note: When Thinking is ON, temperature and max_tokens are IGNORED by the model."
+        )
+        self._thinking_note.setStyleSheet("color: #999; font-size: 11px; margin-bottom: 8px;")
+        layout.addWidget(self._thinking_note)
+        self._update_thinking_ui(oa.get("enable_thinking", True))
+
         # --- Network ---
         lbl4 = QLabel("Network")
         lbl4.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 12px;")
@@ -120,6 +136,14 @@ class AdvancedPage(ScrollArea):
         self.setWidget(view)
         self.setWidgetResizable(True)
 
+    def _on_thinking_toggled(self, enabled: bool):
+        self._update_thinking_ui(enabled)
+
+    def _update_thinking_ui(self, enabled: bool):
+        self._temp.setEnabled(not enabled)
+        self._max_tok.setEnabled(not enabled)
+        self._thinking_note.setVisible(enabled)
+
     def _spin_row(self, layout, label, value, lo, hi):
         lbl = QLabel(label)
         lbl.setStyleSheet("font-size: 14px;")
@@ -129,6 +153,7 @@ class AdvancedPage(ScrollArea):
         sp.setValue(int(float(value)))
         sp.setFont(QFont("Microsoft YaHei", 9))
         sp.setLocale(QLocale.c())
+        sp.wheelEvent = lambda event: None
         layout.addWidget(sp)
         return sp
 
@@ -146,6 +171,7 @@ class AdvancedPage(ScrollArea):
         oa = global_config.setdefault("openai", {})
         oa["temperature"] = self._temp.value() / 100.0
         oa["max_tokens"] = self._max_tok.value()
+        oa["enable_thinking"] = self.sw_thinking.isChecked()
 
         nw = global_config.setdefault("network", {})
         nw["proxy"] = self._proxy.text()

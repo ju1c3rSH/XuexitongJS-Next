@@ -34,10 +34,10 @@ console.log('测试选项:', DEFAULT_TEST_OPTION);
 console.log('强制倍速选项:', DEFAULT_SPEED_OPTION);
 console.log('默认倍速:', DEFAULT_SPEED);
 
-const DEFAULT_SLEEP_TIME = 400 + Math.floor(Math.random() * 200); // 默认延迟400-600ms
-const DEFAULT_INTERVAL_TIME = 85 + Math.floor(Math.random() * 30); // 默认轮询间隔85-115ms
-
-const DEFAULT_TRY_COUNT = 50; // 默认最大尝试次数50次
+const POLL_INTERVAL_MS = globalThis.POLL_INTERVAL_MS ?? 100;
+const DEFAULT_SLEEP_TIME = Math.floor(POLL_INTERVAL_MS * 4 + Math.random() * POLL_INTERVAL_MS * 2); // 默认延迟 = poll_interval_ms*4 ± 50%
+const DEFAULT_INTERVAL_TIME = Math.max(50, Math.floor(POLL_INTERVAL_MS * 0.85)); // 默认轮询间隔 = poll_interval_ms*0.85
+const DEFAULT_TRY_COUNT = globalThis.POLL_MAX_RETRY ?? 50; // 默认最大尝试次数50次
 
 const COURSE_TREE_ID = 'coursetree'; 
 const COURSE_TREE_NODE_FEATURE_CLASS = 'div.posCatalog_select';
