@@ -86,11 +86,9 @@ if __name__ == "__main__":
     font = QFont("Microsoft YaHei", 9)
     application.setFont(font)
 
-    application.setStyleSheet("""
-        QWidget, QLabel, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QPushButton, QSlider {
-            font-family: "Microsoft YaHei", "Microsoft YaHei UI", "SimHei", "Noto Sans CJK SC", sans-serif;
-        }
-    """)
+    # qfluentwidgets 有自己独立的字体配置，需同步设置避免乱码
+    from qfluentwidgets import qconfig
+    qconfig.set(qconfig.fontFamilies, ["Microsoft YaHei", "Microsoft YaHei UI", "SimHei", "Segoe UI"])
 
     backend = TaskManager()
     window = MainWindow(backend)
