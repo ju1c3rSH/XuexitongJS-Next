@@ -13,5 +13,6 @@ __pycache__
 !build.spec
 build
 CLAUDE.md
+AGENTS.md
 pyrightconfig.json
 .claude/settings.local.json
