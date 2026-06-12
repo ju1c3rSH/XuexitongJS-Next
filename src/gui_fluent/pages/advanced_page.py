@@ -65,7 +65,7 @@ class AdvancedPage(ScrollArea):
         layout.addWidget(lbl3)
 
         oa = global_config.get("openai", {})
-        self._temp = self._spin_row(layout, "Temperature (×100)", int(oa.get("temperature", 0.7) * 100), 0, 200)
+        self._temp = self._spin_row(layout, "Temperature (x100)", int(oa.get("temperature", 0.7) * 100), 0, 200)
         self._max_tok = self._spin_row(layout, "Max Tokens", oa.get("max_tokens", 4096), 256, 65536)
 
         # --- 网络 ---
