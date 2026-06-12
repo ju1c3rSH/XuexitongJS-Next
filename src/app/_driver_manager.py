@@ -97,8 +97,17 @@ class CourseHandler:
                         ans_json = await f.read()
                     await websocket.send(ans_json)
 
+                elif data.get("type") == "configSync":
+                    payload: dict = data.get("payload", {})
+                    ac: dict = global_config.setdefault("auto_course", {})
+                    if payload.get("historyUrl"):
+                        ac["history_url"] = payload["historyUrl"]
+                    if payload.get("currentUrl"):
+                        ac["current_url"] = payload["currentUrl"]
+                    save_config()
+                    logging.info("\u914d\u7f6e\u5df2\u81ea\u52a8\u66f4\u65b0: %s", payload)
                 else:
-                    logging.info("收到非HTML消息: %s", data)
+                    logging.info("收到\u975eHTML\u6d88\u606f: %s", data)
         finally:
             self._ws_client_count -= 1
 

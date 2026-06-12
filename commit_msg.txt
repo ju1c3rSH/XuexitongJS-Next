@@ -1,9 +1,5 @@
-feat(protocol): JS structured quiz extraction, CSSOM font, send as JSON
+feat(config): JS auto-syncs login/chapter config to Python
 
-- modules/quiz.js: getFontBase64() reads font-cxsecret via CSSStyleSheet.cssRules
-- modules/quiz.js: extractQuizData() extracts questions + images as structured JSON
-- modules/quiz.js: _nodeToText() preserves [图片#N] placeholders
-- modules/main.js: Work handler sends quizData instead of full HTML (outerHTML)
-- _driver_manager.py: quizData handler — saves font TTF + questions JSON directly
-- __init__.py: detects JSON vs HTML input, adapts pipeline accordingly
-- transmission reduced from ~100KB (full HTML) to ~2KB (structured JSON)
+- modules/core.js: sendConfigUpdate(), checkPageContext(), startChapterObserver()
+- modules/main.js: calls checkPageContext + startChapterObserver on script start
+- _driver_manager.py: configSync handler — updates history_url, current_url in config.toml

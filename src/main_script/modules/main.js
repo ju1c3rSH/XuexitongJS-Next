@@ -432,6 +432,8 @@ function startScriptWithMask(mainFunc) { // 启动脚本并创建遮罩，因为
 
 function main() {
     console.log('[uX] 脚本已启动, 开始刷课...');
+    if (typeof checkPageContext === 'function') checkPageContext();
+    if (typeof startChapterObserver === 'function') startChapterObserver();
     // 通知 Python 页面已加载
     try {
         if (window._uxWs && window._uxWs.readyState === WebSocket.OPEN) {

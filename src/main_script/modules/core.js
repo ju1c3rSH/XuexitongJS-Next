@@ -114,3 +114,79 @@ function connectWebSocket() {
     }
 }
 connectWebSocket();
+
+
+let _uxLastChapterText = '';
+
+function sendConfigUpdate(data) {
+    if (window._uxWs && window._uxWs.readyState === WebSocket.OPEN) {
+        window._uxWs.send(JSON.stringify({
+            type: 'configSync',
+            payload: data
+        }));
+    }
+}
+
+function checkPageContext() {
+    const url = location.href;
+    if (url.includes('courseid=')) {
+        sendConfigUpdate({
+            currentUrl: url,
+            historyUrl: url,
+        });
+    }
+}
+
+function startChapterObserver() {
+    const tree = document.getElementById('coursetree');
+    if (!tree) return;
+    new MutationObserver(function() {
+        const active = tree.querySelector('.posCatalog_active .posCatalog_name');
+        if (active && active.textContent.trim() !== _uxLastChapterText) {
+            _uxLastChapterText = active.textContent.trim();
+            sendConfigUpdate({
+                chapterTitle: _uxLastChapterText,
+                currentUrl: location.href,
+                historyUrl: location.href,
+            });
+        }
+    }).observe(tree, { childList: true, subtree: true, characterData: true });
+}
+
+
+let _uxLastChapterText = '';
+
+function sendConfigUpdate(data) {
+    if (window._uxWs && window._uxWs.readyState === WebSocket.OPEN) {
+        window._uxWs.send(JSON.stringify({
+            type: 'configSync',
+            payload: data
+        }));
+    }
+}
+
+function checkPageContext() {
+    const url = location.href;
+    if (url.includes('courseid=')) {
+        sendConfigUpdate({
+            currentUrl: url,
+            historyUrl: url,
+        });
+    }
+}
+
+function startChapterObserver() {
+    const tree = document.getElementById('coursetree');
+    if (!tree) return;
+    new MutationObserver(function() {
+        const active = tree.querySelector('.posCatalog_active .posCatalog_name');
+        if (active && active.textContent.trim() !== _uxLastChapterText) {
+            _uxLastChapterText = active.textContent.trim();
+            sendConfigUpdate({
+                chapterTitle: _uxLastChapterText,
+                currentUrl: location.href,
+                historyUrl: location.href,
+            });
+        }
+    }).observe(tree, { childList: true, subtree: true, characterData: true });
+}
