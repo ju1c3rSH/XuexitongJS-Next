@@ -2,6 +2,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QHBoxLayout, QPushButt
 from qfluentwidgets import ScrollArea, setTheme, setThemeColor, Theme, RadioButton
 
 from app.utils import global_config, save_config
+from ..i18n import tr
 
 
 THEME_NAMES = ["aoguchi", "ink", "gummy", "prussian", "regal", "rosmarinus", "silence", "vandyke", "vira"]
@@ -37,17 +38,17 @@ class ThemePage(ScrollArea):
         layout.setContentsMargins(36, 24, 36, 24)
         layout.setSpacing(16)
 
-        title = QLabel("Theme")
-        title.setStyleSheet("font-size: 26px; font-weight: bold;")
-        layout.addWidget(title)
+        self.title = QLabel(tr("Theme"))
+        self.title.setStyleSheet("font-size: 26px; font-weight: bold;")
+        layout.addWidget(self.title)
 
-        lbl = QLabel("Fluent Mode")
-        lbl.setStyleSheet("font-size: 16px; font-weight: bold;")
-        layout.addWidget(lbl)
+        self.lbl_mode = QLabel(tr("Fluent Mode"))
+        self.lbl_mode.setStyleSheet("font-size: 16px; font-weight: bold;")
+        layout.addWidget(self.lbl_mode)
 
-        self.rb_light = RadioButton("Light")
-        self.rb_dark = RadioButton("Dark")
-        self.rb_auto = RadioButton("System")
+        self.rb_light = RadioButton(tr("Light"))
+        self.rb_dark = RadioButton(tr("Dark"))
+        self.rb_auto = RadioButton(tr("System"))
         mode_group = QButtonGroup(self)
         mode_group.addButton(self.rb_light)
         mode_group.addButton(self.rb_dark)
@@ -69,9 +70,9 @@ class ThemePage(ScrollArea):
 
         mode_group.buttonClicked.connect(self._on_mode_changed)
 
-        lbl2 = QLabel("自定义配色")
-        lbl2.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 20px;")
-        layout.addWidget(lbl2)
+        self.lbl_accent = QLabel(tr("Custom Accent"))
+        self.lbl_accent.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 20px;")
+        layout.addWidget(self.lbl_accent)
 
         grid = QVBoxLayout()
         grid.setSpacing(12)
@@ -123,3 +124,11 @@ class ThemePage(ScrollArea):
         ui_cfg = global_config.setdefault("ui", {})
         ui_cfg["theme"] = name
         save_config()
+
+    def retranslate(self):
+        self.title.setText(tr("Theme"))
+        self.lbl_mode.setText(tr("Fluent Mode"))
+        self.rb_light.setText(tr("Light"))
+        self.rb_dark.setText(tr("Dark"))
+        self.rb_auto.setText(tr("System"))
+        self.lbl_accent.setText(tr("Custom Accent"))

@@ -2,6 +2,7 @@ from qfluentwidgets import FluentWindow, NavigationItemPosition
 from qfluentwidgets import FluentIcon as FIF
 
 from app import TaskManager
+from .i18n import _manager as lang_mgr, tr
 
 
 class MainWindow(FluentWindow):
@@ -11,7 +12,10 @@ class MainWindow(FluentWindow):
         self.setWindowTitle("uXuexitong")
         self.setMinimumSize(860, 560)
         self.resize(1024, 680)
+        self._page_map = {}
+        self._nav_items = []
         self._setup_navigation()
+        lang_mgr.languageChanged.connect(self._on_language_changed)
 
     def _setup_navigation(self):
         from .pages.script_page import ScriptPage
@@ -35,11 +39,32 @@ class MainWindow(FluentWindow):
         self.theme_page = ThemePage(parent=self)
         self.theme_page.setObjectName("themePage")
 
-        self.addSubInterface(self.script_page, FIF.VIDEO, "Script")
-        self.addSubInterface(self.api_page, FIF.SETTING, "API")
-        self.addSubInterface(self.settings_page, FIF.SYNC, "Settings")
-        self.addSubInterface(self.advanced_page, FIF.DEVELOPER_TOOLS, "Advanced")
-        self.addSubInterface(
-            self.theme_page, FIF.PALETTE, "Theme",
-            position=NavigationItemPosition.BOTTOM
-        )
+        self._page_map = {
+            "scriptPage": (self.script_page, FIF.VIDEO, "Script", None),
+            "apiPage": (self.api_page, FIF.SETTING, "API", None),
+            "settingsPage": (self.settings_page, FIF.SYNC, "Settings", None),
+            "advancedPage": (self.advanced_page, FIF.DEVELOPER_TOOLS, "Advanced", None),
+            "themePage": (self.theme_page, FIF.PALETTE, "Theme", NavigationItemPosition.BOTTOM),
+        }
+
+        self._rebuild_navigation()
+
+    def _rebuild_navigation(self):
+        for key, (page, icon, label, pos) in self._page_map.items():
+            nav_kwargs = {}
+            if pos is not None:
+                nav_kwargs["position"] = pos
+            self.addSubInterface(page, icon, tr(label), **nav_kwargs)
+
+    def _on_language_changed(self, lang):
+        self.setWindowTitle("uXuexitong")
+        # Remove existing navigation items and re-add with translated labels
+        for key in list(self._page_map.keys()):
+            self.navigationInterface.removeWidget(key)
+        self._rebuild_navigation()
+        # Retranslate all sub-pages
+        self.script_page.retranslate()
+        self.api_page.retranslate()
+        self.settings_page.retranslate()
+        self.advanced_page.retranslate()
+        self.theme_page.retranslate()

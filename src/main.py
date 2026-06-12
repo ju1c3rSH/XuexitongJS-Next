@@ -90,6 +90,10 @@ if __name__ == "__main__":
     from qfluentwidgets import qconfig
     qconfig.set(qconfig.fontFamilies, ["Microsoft YaHei", "Microsoft YaHei UI", "SimHei", "Segoe UI"])
 
+    from gui_fluent.i18n import set_language
+    ui_lang = utils.global_config.get("ui", {}).get("language", "en")
+    set_language(ui_lang)
+
     backend = TaskManager()
     window = MainWindow(backend)
     window.show()

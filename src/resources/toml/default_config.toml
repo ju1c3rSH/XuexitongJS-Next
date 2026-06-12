@@ -53,6 +53,7 @@ width = 900
 height = 600
 minimize_to_tray = false
 fluent_mode = "auto"
+language = "en"
 
 # 颜色主题
 

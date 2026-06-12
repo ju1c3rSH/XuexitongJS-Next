@@ -6,6 +6,7 @@ from qfluentwidgets import FluentIcon as FIF
 
 from app import TaskManager
 from app.utils import global_config, save_config
+from ..i18n import tr
 
 
 class ApiPage(ScrollArea):
@@ -22,43 +23,43 @@ class ApiPage(ScrollArea):
         layout.setContentsMargins(36, 24, 36, 24)
         layout.setSpacing(16)
 
-        title = QLabel("API")
-        title.setStyleSheet("font-size: 26px; font-weight: bold;")
-        layout.addWidget(title)
+        self.title = QLabel(tr("API"))
+        self.title.setStyleSheet("font-size: 26px; font-weight: bold;")
+        layout.addWidget(self.title)
 
-        lbl_key = QLabel("API Key")
-        lbl_key.setStyleSheet("font-size: 14px;")
-        layout.addWidget(lbl_key)
+        self.lbl_key = QLabel(tr("API Key"))
+        self.lbl_key.setStyleSheet("font-size: 14px;")
+        layout.addWidget(self.lbl_key)
         self.api_key = PasswordLineEdit()
         self.api_key.setText(oa.get("api_key", ""))
         self.api_key.setPlaceholderText("sk-...")
         layout.addWidget(self.api_key)
 
-        lbl_url = QLabel("Base URL")
-        lbl_url.setStyleSheet("font-size: 14px;")
-        layout.addWidget(lbl_url)
+        self.lbl_url = QLabel(tr("Base URL"))
+        self.lbl_url.setStyleSheet("font-size: 14px;")
+        layout.addWidget(self.lbl_url)
         self.base_url = LineEdit()
-        self.base_url.setText(oa.get("base_url", "https://api.deepseek.com"))
+        self.base_url.setText(oa.get("base_url", "https://api.moonshot.cn/v1"))
         layout.addWidget(self.base_url)
 
-        lbl_model = QLabel("Model")
-        lbl_model.setStyleSheet("font-size: 14px;")
-        layout.addWidget(lbl_model)
+        self.lbl_model = QLabel(tr("Model"))
+        self.lbl_model.setStyleSheet("font-size: 14px;")
+        layout.addWidget(self.lbl_model)
         self.model = LineEdit()
-        self.model.setText(oa.get("model", "deepseek-v4-flash"))
+        self.model.setText(oa.get("model", "kimi-k2-0905-preview"))
         layout.addWidget(self.model)
 
         self.vision = SwitchSettingCard(
-            FIF.VIEW, "Vision",
-            "Enable multi-modal image input"
+            FIF.VIEW, tr("Vision"),
+            tr("Enable multi-modal image input")
         )
         self.vision.setChecked(oa.get("enable_vision", False))
         layout.addWidget(self.vision)
 
-        btn = PrimaryPushButton(FIF.SAVE, "Save")
-        btn.setMinimumHeight(40)
-        btn.clicked.connect(self._on_save)
-        layout.addWidget(btn)
+        self.btn = PrimaryPushButton(FIF.SAVE, tr("Save"))
+        self.btn.setMinimumHeight(40)
+        self.btn.clicked.connect(self._on_save)
+        layout.addWidget(self.btn)
 
         layout.addStretch()
         self.setWidget(view)
@@ -71,4 +72,13 @@ class ApiPage(ScrollArea):
         oa["model"] = self.model.text()
         oa["enable_vision"] = self.vision.isChecked()
         save_config()
-        InfoBar.success("Saved", "API config saved", parent=self)
+        InfoBar.success(tr("Saved"), tr("API config saved"), parent=self)
+
+    def retranslate(self):
+        self.title.setText(tr("API"))
+        self.lbl_key.setText(tr("API Key"))
+        self.lbl_url.setText(tr("Base URL"))
+        self.lbl_model.setText(tr("Model"))
+        self.vision.setTitle(tr("Vision"))
+        self.vision.setContent(tr("Enable multi-modal image input"))
+        self.btn.setText(tr("Save"))
