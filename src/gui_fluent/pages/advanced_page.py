@@ -2,6 +2,7 @@ from pathlib import Path
 import shutil
 
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
+from PyQt5.QtGui import QFont
 from qfluentwidgets import ScrollArea, LineEdit, SpinBox, Slider
 from qfluentwidgets import SwitchSettingCard, InfoBar, MessageBox
 from qfluentwidgets import FluentIcon as FIF
@@ -51,12 +52,14 @@ class AdvancedPage(ScrollArea):
 
         speed = ac.get("speed", 2.0)
         self._speed_lbl = QLabel(f"倍速: {speed}x")
+        self._speed_lbl.setFont(QFont("Microsoft YaHei", 9))
         self._speed_lbl.setStyleSheet("font-size: 14px;")
         layout.addWidget(self._speed_lbl)
         self._speed = Slider()
         self._speed.setRange(50, 400)
         self._speed.setValue(int(speed * 100))
         self._speed.valueChanged.connect(lambda v: self._speed_lbl.setText(f"倍速: {v/100:.2f}x"))
+        self._speed.setFont(QFont("Microsoft YaHei", 9))
         layout.addWidget(self._speed)
 
         # --- AI 高级 ---
@@ -80,6 +83,7 @@ class AdvancedPage(ScrollArea):
         layout.addWidget(lbl_p)
         self._proxy = LineEdit()
         self._proxy.setText(proxy_val)
+        self._proxy.setFont(QFont("Microsoft YaHei", 9))
         layout.addWidget(self._proxy)
 
         domains_val = nw.get("fallback_domains", [])
@@ -88,6 +92,7 @@ class AdvancedPage(ScrollArea):
         layout.addWidget(lbl_d)
         self._domains = LineEdit()
         self._domains.setText(", ".join(domains_val))
+        self._domains.setFont(QFont("Microsoft YaHei", 9))
         layout.addWidget(self._domains)
 
         # --- 自动保存信号 ---
@@ -121,6 +126,7 @@ class AdvancedPage(ScrollArea):
         sp = SpinBox()
         sp.setRange(lo, hi)
         sp.setValue(int(value))
+        sp.setFont(QFont("Microsoft YaHei", 9))
         layout.addWidget(sp)
         return sp
 

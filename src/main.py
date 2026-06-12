@@ -87,7 +87,7 @@ if __name__ == "__main__":
     application.setFont(font)
 
     application.setStyleSheet("""
-        QWidget, QLabel, QLineEdit, QSpinBox, QComboBox, QPushButton {
+        QWidget, QLabel, QLineEdit, QSpinBox, QDoubleSpinBox, QComboBox, QPushButton, QSlider {
             font-family: "Microsoft YaHei", "Microsoft YaHei UI", "SimHei", "Noto Sans CJK SC", sans-serif;
         }
     """)
