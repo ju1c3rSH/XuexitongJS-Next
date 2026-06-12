@@ -6,9 +6,9 @@ from app.utils import global_config, save_config
 
 THEME_NAMES = ["aoguchi", "ink", "gummy", "prussian", "regal", "rosmarinus", "silence", "vandyke", "vira"]
 THEME_LABELS = {
-    "aoguchi": "青口", "ink": "墨染", "gummy": "软糖",
-    "prussian": "普鲁士", "regal": "帝政", "rosmarinus": "迷迭香",
-    "silence": "寂静", "vandyke": "棕褐", "vira": "炫彩",
+    "aoguchi": "Aoguchi", "ink": "Ink", "gummy": "Gummy",
+    "prussian": "Prussian", "regal": "Regal", "rosmarinus": "Rosmarinus",
+    "silence": "Silence", "vandyke": "Vandyke", "vira": "Vira",
 }
 THEME_COLORS = {
     "aoguchi": "#6bb3b7", "ink": "#ffffff", "gummy": "#fc6076",
@@ -37,17 +37,17 @@ class ThemePage(ScrollArea):
         layout.setContentsMargins(36, 24, 36, 24)
         layout.setSpacing(16)
 
-        title = QLabel("主题设置")
+        title = QLabel("Theme")
         title.setStyleSheet("font-size: 26px; font-weight: bold;")
         layout.addWidget(title)
 
-        lbl = QLabel("Fluent 主题模式")
+        lbl = QLabel("Fluent Mode")
         lbl.setStyleSheet("font-size: 16px; font-weight: bold;")
         layout.addWidget(lbl)
 
-        self.rb_light = RadioButton("浅色")
-        self.rb_dark = RadioButton("深色")
-        self.rb_auto = RadioButton("跟随系统")
+        self.rb_light = RadioButton("Light")
+        self.rb_dark = RadioButton("Dark")
+        self.rb_auto = RadioButton("System")
         mode_group = QButtonGroup(self)
         mode_group.addButton(self.rb_light)
         mode_group.addButton(self.rb_dark)

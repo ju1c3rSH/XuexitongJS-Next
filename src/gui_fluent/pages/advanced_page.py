@@ -1,6 +1,7 @@
 from pathlib import Path
 import shutil
 
+from PyQt5.QtCore import QLocale
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 from PyQt5.QtGui import QFont
 from qfluentwidgets import ScrollArea, LineEdit, SpinBox, Slider
@@ -23,62 +24,62 @@ class AdvancedPage(ScrollArea):
         layout.setContentsMargins(36, 24, 36, 24)
         layout.setSpacing(14)
 
-        title = QLabel("高级配置")
+        title = QLabel("Advanced")
         title.setStyleSheet("font-size: 26px; font-weight: bold;")
         layout.addWidget(title)
 
-        desc = QLabel("调整答题、行为与网络的详细参数，修改后自动保存。")
+        desc = QLabel("Fine-tune quiz, behavior and network parameters. Auto-saved.")
         desc.setStyleSheet("color: #888; font-size: 13px;")
         layout.addWidget(desc)
 
-        # --- 答题 ---
-        lbl = QLabel("答题设置")
+        # --- Quiz ---
+        lbl = QLabel("Quiz")
         lbl.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 12px;")
         layout.addWidget(lbl)
 
         q_cfg = global_config.get("quiz", {})
-        self._batch = self._spin_row(layout, "批处理大小 (batch_size)", q_cfg.get("batch_size", 10), 1, 50)
-        self._retry = self._spin_row(layout, "重试次数 (retry_count)", q_cfg.get("retry_count", 3), 0, 10)
-        self._timeout = self._spin_row(layout, "API 超时 (api_timeout, 秒)", q_cfg.get("api_timeout", 40), 10, 300)
+        self._batch = self._spin_row(layout, "Batch Size", q_cfg.get("batch_size", 10), 1, 50)
+        self._retry = self._spin_row(layout, "Retry Count", q_cfg.get("retry_count", 3), 0, 10)
+        self._timeout = self._spin_row(layout, "API Timeout (s)", q_cfg.get("api_timeout", 40), 10, 300)
 
-        # --- 行为 ---
-        lbl2 = QLabel("行为设置")
+        # --- Behavior ---
+        lbl2 = QLabel("Behavior")
         lbl2.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 12px;")
         layout.addWidget(lbl2)
 
         ac = global_config.get("auto_course", {})
-        self._poll = self._spin_row(layout, "轮询间隔 (poll_interval, ms)", ac.get("poll_interval_ms", 100), 50, 1000)
-        self._retry_max = self._spin_row(layout, "最大重试 (poll_max_retry)", ac.get("poll_max_retry", 50), 5, 200)
+        self._poll = self._spin_row(layout, "Poll Interval (ms)", ac.get("poll_interval_ms", 100), 50, 1000)
+        self._retry_max = self._spin_row(layout, "Max Retries", ac.get("poll_max_retry", 50), 5, 200)
 
         speed = ac.get("speed", 2.0)
-        self._speed_lbl = QLabel(f"倍速: {speed}x")
+        self._speed_lbl = QLabel(f"Speed: {speed}x")
         self._speed_lbl.setFont(QFont("Microsoft YaHei", 9))
         self._speed_lbl.setStyleSheet("font-size: 14px;")
         layout.addWidget(self._speed_lbl)
         self._speed = Slider()
         self._speed.setRange(50, 400)
         self._speed.setValue(int(speed * 100))
-        self._speed.valueChanged.connect(lambda v: self._speed_lbl.setText(f"倍速: {v/100:.2f}x"))
+        self._speed.valueChanged.connect(lambda v: self._speed_lbl.setText(f"Speed: {v/100:.2f}x"))
         self._speed.setFont(QFont("Microsoft YaHei", 9))
         layout.addWidget(self._speed)
 
-        # --- AI 高级 ---
-        lbl3 = QLabel("AI 高级")
+        # --- AI ---
+        lbl3 = QLabel("AI")
         lbl3.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 12px;")
         layout.addWidget(lbl3)
 
         oa = global_config.get("openai", {})
-        self._temp = self._spin_row(layout, "Temperature (x100)", int(oa.get("temperature", 0.7) * 100), 0, 200)
+        self._temp = self._spin_row(layout, "Temperature (x100)", int(float(oa.get("temperature", 0.7)) * 100), 0, 200)
         self._max_tok = self._spin_row(layout, "Max Tokens", oa.get("max_tokens", 4096), 256, 65536)
 
-        # --- 网络 ---
-        lbl4 = QLabel("网络")
+        # --- Network ---
+        lbl4 = QLabel("Network")
         lbl4.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 12px;")
         layout.addWidget(lbl4)
 
         nw = global_config.get("network", {})
         proxy_val = nw.get("proxy", "")
-        lbl_p = QLabel("HTTP 代理")
+        lbl_p = QLabel("HTTP Proxy")
         lbl_p.setStyleSheet("font-size: 14px;")
         layout.addWidget(lbl_p)
         self._proxy = LineEdit()
@@ -87,7 +88,7 @@ class AdvancedPage(ScrollArea):
         layout.addWidget(self._proxy)
 
         domains_val = nw.get("fallback_domains", [])
-        lbl_d = QLabel("备用域名 (逗号分隔)")
+        lbl_d = QLabel("Fallback Domains (comma-separated)")
         lbl_d.setStyleSheet("font-size: 14px;")
         layout.addWidget(lbl_d)
         self._domains = LineEdit()
@@ -104,7 +105,7 @@ class AdvancedPage(ScrollArea):
 
         # --- 恢复默认 ---
         layout.addSpacing(20)
-        reset_btn = QPushButton("恢复默认设置")
+        reset_btn = QPushButton("Reset to Defaults")
         reset_btn.setStyleSheet("""
             QPushButton {
                 background-color: #d32f2f; color: white; border-radius: 8px;
@@ -125,8 +126,9 @@ class AdvancedPage(ScrollArea):
         layout.addWidget(lbl)
         sp = SpinBox()
         sp.setRange(lo, hi)
-        sp.setValue(int(value))
+        sp.setValue(int(float(value)))
         sp.setFont(QFont("Microsoft YaHei", 9))
+        sp.setLocale(QLocale.c())
         layout.addWidget(sp)
         return sp
 
@@ -152,9 +154,9 @@ class AdvancedPage(ScrollArea):
         save_config()
 
     def _on_reset(self):
-        m = MessageBox("确认重置", "所有配置将恢复为默认值，确定继续？", self)
-        m.yesButton.setText("确定")
-        m.cancelButton.setText("取消")
+        m = MessageBox("Confirm", "Reset all settings to defaults?", self)
+        m.yesButton.setText("Reset")
+        m.cancelButton.setText("Cancel")
         if not m.exec():
             return
 
@@ -163,5 +165,5 @@ class AdvancedPage(ScrollArea):
         shutil.copy2(str(src), str(dst))
 
         init_config()
-        InfoBar.success("已重置", "配置已恢复为默认值", parent=self)
+        InfoBar.success("Reset", "Settings restored to defaults", parent=self)
         self._setup_ui()

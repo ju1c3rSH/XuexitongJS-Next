@@ -19,35 +19,37 @@ class ScriptPage(ScrollArea):
         layout.setContentsMargins(36, 24, 36, 24)
         layout.setSpacing(16)
 
-        title = QLabel("脚本控制")
+        title = QLabel("Script")
         title.setStyleSheet("font-size: 26px; font-weight: bold;")
         layout.addWidget(title)
 
-        self.btn_launch = PrimaryPushButton(FIF.PLAY, "启动浏览器")
+        self.btn_launch = PrimaryPushButton(FIF.PLAY, "Launch Browser")
         self.btn_launch.setMinimumHeight(44)
         self.btn_launch.clicked.connect(self._on_launch)
         layout.addWidget(self.btn_launch)
 
-        self.btn_inject = PrimaryPushButton(FIF.SEND, "注入脚本")
+        self.btn_inject = PrimaryPushButton(FIF.SEND, "Inject Script")
         self.btn_inject.setMinimumHeight(44)
         self.btn_inject.clicked.connect(self._on_inject)
         self.btn_inject.setEnabled(False)
         layout.addWidget(self.btn_inject)
 
-        self.btn_mouse = PrimaryPushButton(FIF.ZOOM, "开启鼠标模拟")
+        self.btn_mouse = PrimaryPushButton(FIF.ZOOM, "Start Mouse")
         self.btn_mouse.setMinimumHeight(44)
         self.btn_mouse.clicked.connect(self._on_mouse)
         self.btn_mouse.setEnabled(False)
         layout.addWidget(self.btn_mouse)
 
-        group = SettingCardGroup("自动化行为", view)
+        group = SettingCardGroup("Behavior", view)
         self.sw_keep = SwitchSettingCard(
-            FIF.UPDATE, "保持登录", "启动时恢复 Cookie"
+            FIF.UPDATE, "Keep Login",
+            "Restore cookies on startup"
         )
         group.addSettingCard(self.sw_keep)
 
         self.sw_speed = SwitchSettingCard(
-            FIF.SPEED_HIGH, "强制倍速", "覆盖视频播放速度"
+            FIF.SPEED_HIGH, "Force Speed",
+            "Override playback rate"
         )
         group.addSettingCard(self.sw_speed)
         layout.addWidget(group)
@@ -58,7 +60,7 @@ class ScriptPage(ScrollArea):
 
     def _guard(self) -> bool:
         if self._busy:
-            InfoBar.warning("操作中", "请等待当前任务完成", parent=self)
+            InfoBar.warning("Busy", "Task in progress", parent=self)
             return False
         return True
 
@@ -67,14 +69,14 @@ class ScriptPage(ScrollArea):
             return
         self._busy = True
         self.btn_launch.setEnabled(False)
-        self.btn_launch.setText("启动中...")
+        self.btn_launch.setText("Launching...")
 
         def done(jid, r):
             self._busy = False
             self.btn_launch.setEnabled(True)
-            self.btn_launch.setText("启动浏览器")
+            self.btn_launch.setText("Launch Browser")
             self.btn_inject.setEnabled(True)
-            InfoBar.success("完成", "浏览器已启动", parent=self)
+            InfoBar.success("Done", "Browser launched", parent=self)
             self.backend.finished.disconnect(done)
 
         self.backend.finished.connect(done)
@@ -85,14 +87,14 @@ class ScriptPage(ScrollArea):
             return
         self._busy = True
         self.btn_inject.setEnabled(False)
-        self.btn_inject.setText("注入中...")
+        self.btn_inject.setText("Injecting...")
 
         def done(jid, r):
             self._busy = False
             self.btn_inject.setEnabled(True)
-            self.btn_inject.setText("注入脚本")
+            self.btn_inject.setText("Inject Script")
             self.btn_mouse.setEnabled(True)
-            InfoBar.success("完成", "脚本已注入", parent=self)
+            InfoBar.success("Done", "Script injected", parent=self)
             self.backend.finished.disconnect(done)
 
         self.backend.finished.connect(done)
@@ -102,4 +104,4 @@ class ScriptPage(ScrollArea):
         if not self._guard():
             return
         self.backend.dispatch("pretend_active", [])
-        InfoBar.info("模拟", "鼠标模拟已启动", parent=self)
+        InfoBar.info("Active", "Mouse simulation started", parent=self)

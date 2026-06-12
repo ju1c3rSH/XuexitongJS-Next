@@ -35,11 +35,11 @@ class MainWindow(FluentWindow):
         self.theme_page = ThemePage(parent=self)
         self.theme_page.setObjectName("themePage")
 
-        self.addSubInterface(self.script_page, FIF.VIDEO, "脚本")
+        self.addSubInterface(self.script_page, FIF.VIDEO, "Script")
         self.addSubInterface(self.api_page, FIF.SETTING, "API")
-        self.addSubInterface(self.settings_page, FIF.SYNC, "设置")
-        self.addSubInterface(self.advanced_page, FIF.DEVELOPER_TOOLS, "高级")
+        self.addSubInterface(self.settings_page, FIF.SYNC, "Settings")
+        self.addSubInterface(self.advanced_page, FIF.DEVELOPER_TOOLS, "Advanced")
         self.addSubInterface(
-            self.theme_page, FIF.PALETTE, "主题",
+            self.theme_page, FIF.PALETTE, "Theme",
             position=NavigationItemPosition.BOTTOM
         )

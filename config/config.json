@@ -1,0 +1,12 @@
+{
+    "QFluentWidgets": {
+        "FontFamilies": [
+            "Microsoft YaHei",
+            "Microsoft YaHei UI",
+            "SimHei",
+            "Segoe UI"
+        ],
+        "ThemeColor": "#ff009faa",
+        "ThemeMode": "Light"
+    }
+}

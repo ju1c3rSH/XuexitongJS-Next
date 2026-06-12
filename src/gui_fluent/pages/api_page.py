@@ -22,7 +22,7 @@ class ApiPage(ScrollArea):
         layout.setContentsMargins(36, 24, 36, 24)
         layout.setSpacing(16)
 
-        title = QLabel("API 配置")
+        title = QLabel("API")
         title.setStyleSheet("font-size: 26px; font-weight: bold;")
         layout.addWidget(title)
 
@@ -49,12 +49,13 @@ class ApiPage(ScrollArea):
         layout.addWidget(self.model)
 
         self.vision = SwitchSettingCard(
-            FIF.VIEW, "多模态视觉", "向多模态模型发送图片"
+            FIF.VIEW, "Vision",
+            "Enable multi-modal image input"
         )
         self.vision.setChecked(oa.get("enable_vision", False))
         layout.addWidget(self.vision)
 
-        btn = PrimaryPushButton(FIF.SAVE, "保存")
+        btn = PrimaryPushButton(FIF.SAVE, "Save")
         btn.setMinimumHeight(40)
         btn.clicked.connect(self._on_save)
         layout.addWidget(btn)
@@ -70,4 +71,4 @@ class ApiPage(ScrollArea):
         oa["model"] = self.model.text()
         oa["enable_vision"] = self.vision.isChecked()
         save_config()
-        InfoBar.success("已保存", "API 配置已保存", parent=self)
+        InfoBar.success("Saved", "API config saved", parent=self)
