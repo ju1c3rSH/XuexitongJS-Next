@@ -1,6 +1,5 @@
 from PyQt5.QtWidgets import QWidget, QVBoxLayout
-from PyQt5.QtCore import Qt
-from qfluentwidgets import ScrollArea, PrimaryPushButton
+from qfluentwidgets import ScrollArea, PrimaryPushButton, InfoBar
 from qfluentwidgets import SettingCardGroup, SwitchSettingCard
 from qfluentwidgets import FluentIcon as FIF
 
@@ -19,21 +18,36 @@ class ScriptPage(ScrollArea):
         layout.setContentsMargins(36, 20, 36, 20)
         layout.setSpacing(16)
 
-        layout.addWidget(PrimaryPushButton(FIF.PLAY, "Launch Browser"))
-        layout.addWidget(PrimaryPushButton(FIF.SEND, "Inject Script"))
-        layout.addWidget(PrimaryPushButton(FIF.ZOOM, "Mouse Simulation"))
+        self.btn_launch = PrimaryPushButton(FIF.PLAY, "Launch Browser")
+        self.btn_launch.clicked.connect(self._on_launch)
+        layout.addWidget(self.btn_launch)
+
+        self.btn_inject = PrimaryPushButton(FIF.SEND, "Inject Script")
+        self.btn_inject.clicked.connect(self._on_inject)
+        layout.addWidget(self.btn_inject)
+
+        self.btn_mouse = PrimaryPushButton(FIF.ZOOM, "Mouse Simulation")
+        self.btn_mouse.clicked.connect(self._on_mouse)
+        layout.addWidget(self.btn_mouse)
 
         group = SettingCardGroup("Behavior", view)
         group.addSettingCard(SwitchSettingCard(
-            FIF.UPDATE, "Keep Login",
-            "Restore cookies on startup"
-        ))
+            FIF.UPDATE, "Keep Login", "Restore cookies on startup"))
         group.addSettingCard(SwitchSettingCard(
-            FIF.SPEED_HIGH, "Force Speed",
-            "Override video playback speed"
-        ))
+            FIF.SPEED_HIGH, "Force Speed", "Override video playback speed"))
         layout.addWidget(group)
-        layout.addStretch()
 
+        layout.addStretch()
         self.setWidget(view)
         self.setWidgetResizable(True)
+
+    def _on_launch(self):
+        jid = self.backend.dispatch("launch_driver", [])
+        self.backend.finished.connect(lambda jid2, r:
+            InfoBar.success("Done", "Browser launched", parent=self) if jid == jid2 else None)
+
+    def _on_inject(self):
+        self.backend.dispatch("launch_script", [])
+
+    def _on_mouse(self):
+        self.backend.dispatch("pretend_active", [])
