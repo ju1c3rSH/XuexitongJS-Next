@@ -6,12 +6,18 @@ import sys
 from collections.abc import Callable
 from pathlib import Path
 
-from PySide6.QtCore import QtMsgType, QUrl, qInstallMessageHandler
-from PySide6.QtGui import QIcon
-from PySide6.QtQml import QQmlApplicationEngine
-from PySide6.QtWidgets import QApplication
+# onnxruntime DLL 加载需在 Qt 之前完成，否则可能因 DLL 搜索路径冲突失败
+try:
+    import onnxruntime  # noqa: F401
+except ImportError:
+    pass
+
+from PyQt5.QtCore import QtMsgType, qInstallMessageHandler
+from PyQt5.QtGui import QIcon
+from PyQt5.QtWidgets import QApplication
 
 from app import TaskManager, utils
+from gui_fluent.main_window import MainWindow
 
 
 def qt_message_handler(msg_type, _, message):
@@ -23,7 +29,7 @@ def qt_message_handler(msg_type, _, message):
         QtMsgType.QtCriticalMsg: logging.ERROR,
         QtMsgType.QtFatalMsg: logging.CRITICAL
     }.get(msg_type, logging.INFO)
-    logging.log(qt_level, "[QML] %s", message)
+    logging.log(qt_level, "[Qt] %s", message)
 
 def setup_logging() -> None:
     """日志初始化"""
@@ -36,7 +42,6 @@ def setup_logging() -> None:
         level=logging.INFO,
         format='%(asctime)s [%(levelname)s] %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S',
-        # 保证日志同时输出到文件和控制台
         handlers=[
             logging.FileHandler(log_path, encoding='utf-8'),
             logging.StreamHandler()
@@ -70,22 +75,14 @@ if __name__ == "__main__":
         utils.check_file
     )
 
-    os.environ['QML_XHR_ALLOW_FILE_READ'] = '1'  # 授权 QML 读取资源文件
-    application = QApplication([])
+    application = QApplication(sys.argv)
     application.setWindowIcon(QIcon(
         str(utils.static_path("src", "resources", "ico", "the_icon.ico"))
     ))
 
     backend = TaskManager()
-
-    engine = QQmlApplicationEngine()
-    engine.rootContext().setContextProperty("backend", backend)
-    engine.load(QUrl.fromLocalFile(
-        utils.static_path("src", "gui", "main.qml")
-    ))
-    if not engine.rootObjects():
-        logging.critical("GUI 加载失败, 程序自动退出")
-        sys.exit(1)
+    window = MainWindow(backend)
+    window.show()
 
     application.aboutToQuit.connect(backend.close)
-    application.exec()
+    sys.exit(application.exec_())
