@@ -141,7 +141,7 @@ def extract_simple_answers(input_json_path: Path, output_json_path: Path) -> Non
         questions: list[dict[str, str]] = json.load(f)
 
     result: list[dict[str, str]] = [
-        {"题号": q["题号"], "答案": q.get("AI答案", "")}
+        {"question_id": q["题号"], "answer": q.get("AI答案", "")}
         for q in questions
         if "AI答案" in q
     ]

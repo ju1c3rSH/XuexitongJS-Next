@@ -805,8 +805,8 @@ function findWorkElement(innerDoc) {
 
 function autoFillAnswers(testList, answerJson) {
     answerJson.forEach(item => {
-        const qNum = item["题号"];
-        const ans = item["答案"];
+        const qNum = item["question_id"];
+        const ans = item["answer"];
         for (const quesDiv of testList) {
             const iTag = quesDiv.querySelector('i');
             if (iTag && iTag.textContent.trim() === qNum) {
