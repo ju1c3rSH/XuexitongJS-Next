@@ -9,6 +9,7 @@ from typing import Any
 from openai import OpenAI, OpenAIError
 from openai.types.chat import ChatCompletionMessageParam
 
+from ..config import AIConfig, ConfigProvider, QuizConfig
 from ..utils import global_config
 from ._prompt_builder import build_system_prompt, build_vision_messages, resolve_placeholders
 from ._web_search import search_for_questions
@@ -28,25 +29,44 @@ def get_openai_client(config: dict[str, str]) -> tuple[OpenAI, str]:
 
 
 def chat_with_openai(
-    messages: list[ChatCompletionMessageParam], model: str | None = None
+    messages: list[ChatCompletionMessageParam],
+    model: str | None = None,
+    ai_cfg: AIConfig | None = None,
+    quiz_cfg: QuizConfig | None = None,
 ) -> str:
-    """OpenAI交互接口"""
+    """OpenAI交互接口
+
+    若 ai_cfg / quiz_cfg 不传入，自动从 global_config 最新值构造（热更新）。
+    若外层调用方已传入，以此处参数为准。
+    """
+    if ai_cfg is None:
+        ai_cfg = ConfigProvider.get_ai()
+    if quiz_cfg is None:
+        quiz_cfg = ConfigProvider.get_quiz()
 
     client: OpenAI
     default_model: str
     client, default_model = get_openai_client(global_config.get("openai", {}))
     if model is None:
         model = default_model
-    completion = client.chat.completions.create(
+
+    kwargs: dict[str, Any] = dict(
         model=model,
         messages=messages,
-        timeout=40,
-        reasoning_effort="high",
-        extra_body={"thinking": {"type": "enabled"}},
+        timeout=quiz_cfg.api_timeout,
         response_format={"type": "json_object"},
     )
+    if ai_cfg.enable_thinking:
+        kwargs["reasoning_effort"] = "high"
+        kwargs["extra_body"] = {"thinking": {"type": "enabled"}}
+    else:
+        kwargs["temperature"] = ai_cfg.temperature
+        kwargs["max_tokens"] = ai_cfg.max_tokens
+
+    completion = client.chat.completions.create(**kwargs)
     logging.info("Input Messages: %s", messages)
-    logging.info("Reasoning Content: %s", completion.choices[0].message.reasoning_content)
+    if completion.choices[0].message.reasoning_content:
+        logging.info("Reasoning Content: %s", completion.choices[0].message.reasoning_content)
     content = completion.choices[0].message.content
     if not content:
         raise ValueError("AI returned empty content")
@@ -56,9 +76,14 @@ def chat_with_openai(
 def answer_questions_batch(
     questions: list[dict[str, str]],
     image_refs: list[dict[str, Any]] | None = None,
-    retry: int = 3,
+    quiz_cfg: QuizConfig | None = None,
+    ai_cfg: AIConfig | None = None,
 ) -> str:
     """批量请求AI回答题目, 返回JSON字符串, 多次失败则返回默认答案A的JSON"""
+    if quiz_cfg is None:
+        quiz_cfg = ConfigProvider.get_quiz()
+    if ai_cfg is None:
+        ai_cfg = ConfigProvider.get_ai()
 
     search_context: str = ""
     course_config = global_config.get("auto_course", {})
@@ -82,10 +107,10 @@ def answer_questions_batch(
             {"role": "user", "content": prompt},
         ]
 
-    for i in range(retry):
+    for i in range(quiz_cfg.retry_count):
         logging.info("第 %d 次请求中...", i + 1)
         try:
-            response = chat_with_openai(messages)
+            response = chat_with_openai(messages, ai_cfg=ai_cfg, quiz_cfg=quiz_cfg)
             data = json.loads(response)
             if not isinstance(data.get("answers"), list):
                 raise ValueError("响应缺少 answers 数组")
@@ -107,21 +132,26 @@ def answer_questions_file(
     input_json_path: Path,
     output_json_path: Path,
     image_refs: list[dict[str, Any]] | None = None,
-    batch_size: int = 10,
+    quiz_cfg: QuizConfig | None = None,
+    ai_cfg: AIConfig | None = None,
 ) -> None:
     """从文件读取题目, 批量请求AI并写入带答案的json"""
+    if quiz_cfg is None:
+        quiz_cfg = ConfigProvider.get_quiz()
+    if ai_cfg is None:
+        ai_cfg = ConfigProvider.get_ai()
 
     with input_json_path.open(encoding="utf-8") as f:
         questions: list[dict[str, str]] = json.load(f)
 
-    for batch_start in range(0, len(questions), batch_size):
-        batch: list[dict[str, str]] = questions[batch_start : batch_start + batch_size]
+    for batch_start in range(0, len(questions), quiz_cfg.batch_size):
+        batch: list[dict[str, str]] = questions[batch_start : batch_start + quiz_cfg.batch_size]
         logging.info(
             "正在批量回答第 %d~%d 题",
             batch_start + 1,
-            min(batch_start + batch_size, len(questions)),
+            min(batch_start + quiz_cfg.batch_size, len(questions)),
         )
-        batch_answer: str = answer_questions_batch(batch, image_refs)
+        batch_answer: str = answer_questions_batch(batch, image_refs, quiz_cfg=quiz_cfg, ai_cfg=ai_cfg)
         logging.info("AI批量答案: %s", batch_answer)
         data = json.loads(batch_answer)
         q_map = {}

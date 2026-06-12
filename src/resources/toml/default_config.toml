@@ -7,9 +7,12 @@ theme = "aoguchi"
 
 [openai]
 api_key = ""
-base_url = "https://api.moonshot.cn/v1"
-model = "kimi-k2-0905-preview"
+base_url = "https://api.deepseek.com"
+model = "deepseek-v4-flash"
 enable_vision = false
+temperature = 0.7
+max_tokens = 4096
+enable_thinking = true
 
 # 刷课相关配置
 
@@ -24,6 +27,33 @@ force_speed = false
 speed = 2.0
 enable_search = true
 search_max_results = 8
+mute_video = true
+skip_non_video = false
+poll_interval_ms = 100
+poll_max_retry = 50
+
+# 答题相关配置
+
+[quiz]
+mode = "ai"
+batch_size = 10
+retry_count = 3
+api_timeout = 40
+
+# 网络相关配置
+
+[network]
+proxy = ""
+fallback_domains = ["mooc1.chaoxing.com", "mooc2.chaoxing.com", "mooc.chaoxing.com"]
+
+# 界面相关配置
+
+[ui]
+width = 900
+height = 600
+minimize_to_tray = false
+fluent_mode = "auto"
+language = "en"
 
 # 颜色主题
 

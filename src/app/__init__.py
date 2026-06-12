@@ -10,7 +10,7 @@ import logging
 from collections.abc import Callable
 from typing import Any
 
-from PySide6.QtCore import QObject, QThread, Signal, Slot
+from PyQt5.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
 
 from ._config_manager import Configuration
 from ._driver_manager import CourseHandler
@@ -40,7 +40,7 @@ class TaskExecutor(QObject):
                         logging.warning("业务%s已存在, 原有业务将被覆盖", name)
                     self._task_registry[name] = handler
 
-    @Slot(int, str, list)
+    @pyqtSlot(int, str, list)
     def exec(self, job_id: int, task_name: str, args: list) -> None:
         """执行指定业务"""
         handler = self._task_registry.get(task_name)
@@ -68,8 +68,8 @@ class TaskExecutor(QObject):
 
 class TaskManager(QObject):
     """业务管理器, 负责管理工作线程和业务分发"""
-    finished: Signal = Signal(int, object)
-    _execute: Signal = Signal(int, str, list)  # jobId, taskName, args
+    finished: pyqtSignal = pyqtSignal(int, object)
+    _execute: pyqtSignal = pyqtSignal(int, str, list)  # jobId, taskName, args
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -83,7 +83,7 @@ class TaskManager(QObject):
         self._thread.start()
         self._results: dict[int, object] = {}
 
-    @Slot(str, list, result=int)
+    @pyqtSlot(str, list, result=int)
     def dispatch(self, task_name: str, args: list) -> int:
         """分发业务到工作线程并返回业务ID"""
         job_id = next(self._job_id_counter)
@@ -94,14 +94,14 @@ class TaskManager(QObject):
             logging.error("工作线程未启动。")
         return job_id
 
-    @Slot(int, object)
+    @pyqtSlot(int, object)
     def on_finished(self, job_id: int, result: object) -> None:
         """业务完成回调"""
         logging.info("业务(ID: %d)完成, 返回值: %s", job_id, result)
         self._results[job_id] = result
         self.finished.emit(job_id, result)
 
-    @Slot(int, result=str)
+    @pyqtSlot(int, result=str)
     def get_result(self, job_id: int) -> str:
         """获取指定ID的业务结果"""
         result = self._results.pop(job_id, "")
