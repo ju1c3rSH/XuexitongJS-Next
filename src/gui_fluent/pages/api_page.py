@@ -38,14 +38,14 @@ class ApiPage(ScrollArea):
         lbl_url.setStyleSheet("font-size: 14px;")
         layout.addWidget(lbl_url)
         self.base_url = LineEdit()
-        self.base_url.setText(oa.get("base_url", "https://api.moonshot.cn/v1"))
+        self.base_url.setText(oa.get("base_url", "https://api.deepseek.com"))
         layout.addWidget(self.base_url)
 
         lbl_model = QLabel("Model")
         lbl_model.setStyleSheet("font-size: 14px;")
         layout.addWidget(lbl_model)
         self.model = LineEdit()
-        self.model.setText(oa.get("model", "kimi-k2-0905-preview"))
+        self.model.setText(oa.get("model", "deepseek-v4-flash"))
         layout.addWidget(self.model)
 
         self.vision = SwitchSettingCard(

@@ -4,6 +4,7 @@ from qfluentwidgets import SettingCardGroup, SwitchSettingCard
 from qfluentwidgets import FluentIcon as FIF
 
 from app import TaskManager
+from app.utils import global_config, save_config
 
 
 class ScriptPage(ScrollArea):
@@ -41,16 +42,22 @@ class ScriptPage(ScrollArea):
         layout.addWidget(self.btn_mouse)
 
         group = SettingCardGroup("Behavior", view)
+
+        ac = global_config.get("auto_course", {})
         self.sw_keep = SwitchSettingCard(
             FIF.UPDATE, "Keep Login",
             "Restore cookies on startup"
         )
+        self.sw_keep.setChecked(ac.get("restore_cookies", True))
+        self.sw_keep.checkedChanged.connect(self._auto_save)
         group.addSettingCard(self.sw_keep)
 
         self.sw_speed = SwitchSettingCard(
             FIF.SPEED_HIGH, "Force Speed",
             "Override playback rate"
         )
+        self.sw_speed.setChecked(ac.get("force_speed", False))
+        self.sw_speed.checkedChanged.connect(self._auto_save)
         group.addSettingCard(self.sw_speed)
         layout.addWidget(group)
 
@@ -105,3 +112,9 @@ class ScriptPage(ScrollArea):
             return
         self.backend.dispatch("pretend_active", [])
         InfoBar.info("Active", "Mouse simulation started", parent=self)
+
+    def _auto_save(self):
+        ac = global_config.setdefault("auto_course", {})
+        ac["restore_cookies"] = self.sw_keep.isChecked()
+        ac["force_speed"] = self.sw_speed.isChecked()
+        save_config()
