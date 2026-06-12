@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPlainTextEdit
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QPlainTextEdit
 from qfluentwidgets import ScrollArea, PrimaryPushButton, InfoBar
 from qfluentwidgets import SettingCardGroup, SwitchSettingCard
 from qfluentwidgets import FluentIcon as FIF
@@ -75,9 +75,19 @@ class ScriptPage(ScrollArea):
         layout.addWidget(self.group)
 
         # --- Logcat ---
+        log_header = QWidget()
+        log_h = QHBoxLayout(log_header)
+        log_h.setContentsMargins(0, 0, 0, 0)
         lbl_log = QLabel(tr("Logcat"))
-        lbl_log.setStyleSheet("font-size: 16px; font-weight: bold; margin-top: 12px;")
-        layout.addWidget(lbl_log)
+        lbl_log.setStyleSheet("font-size: 16px; font-weight: bold;")
+        log_h.addWidget(lbl_log)
+        log_h.addStretch()
+        btn_clear = QPushButton(tr("Clear"))
+        btn_clear.setFixedSize(60, 24)
+        btn_clear.setStyleSheet("font-size: 12px;")
+        btn_clear.clicked.connect(self._log_view.clear)
+        log_h.addWidget(btn_clear)
+        layout.addWidget(log_header)
 
         self._log_view = QPlainTextEdit()
         self._log_view.setReadOnly(True)
@@ -145,9 +155,11 @@ class ScriptPage(ScrollArea):
         save_config()
 
     def _append_log(self, msg: str):
-        self._log_view.appendPlainText(msg)
         sb = self._log_view.verticalScrollBar()
-        sb.setValue(sb.maximum())
+        at_bottom = sb.value() >= sb.maximum() - 1
+        self._log_view.appendPlainText(msg)
+        if at_bottom:
+            sb.setValue(sb.maximum())
 
     def retranslate(self):
         self.title.setText(tr("Script"))
