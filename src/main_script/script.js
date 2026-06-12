@@ -1376,8 +1376,7 @@ async function handleIframeChange(prama = DEFAULT_TEST_OPTION) {
                                                                 questions: quizPayload.questions,
                                                                 images: quizPayload.images
                                                             };
-                                                            window._uxWs.send(JSON.stringify(msg)
-                                                            }));
+                                                             window._uxWs.send(JSON.stringify(msg));
                                                             await new Promise(resolve => {
                                                                 function onMessage(event) {
                                                                     try {
