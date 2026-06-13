@@ -1,3 +1,4 @@
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QPlainTextEdit, QDoubleSpinBox
 from qfluentwidgets import ScrollArea, PrimaryPushButton, InfoBar
 from qfluentwidgets import SettingCardGroup, SettingCard, SwitchSettingCard
@@ -82,7 +83,7 @@ class ScriptPage(ScrollArea):
         self._speed_spin.setValue(ac.get("speed", 2.0))
         self._speed_spin.setEnabled(ac.get("force_speed", False))
         self._speed_spin.valueChanged.connect(self._auto_save)
-        self._speed_card.addWidget(self._speed_spin)
+        self._speed_card.hBoxLayout.addWidget(self._speed_spin, 0, Qt.AlignRight)
         self.group.addSettingCard(self._speed_card)
         layout.addWidget(self.group)
 
