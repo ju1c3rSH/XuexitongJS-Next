@@ -1,7 +1,8 @@
-from PyQt5.QtCore import Qt, QLocale
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QPlainTextEdit, QDoubleSpinBox
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QPlainTextEdit
+from PyQt5.QtGui import QFont
 from qfluentwidgets import ScrollArea, PrimaryPushButton, InfoBar
-from qfluentwidgets import SettingCardGroup, SettingCard, SwitchSettingCard
+from qfluentwidgets import SettingCardGroup, SettingCard, SwitchSettingCard, Slider
 from qfluentwidgets import FluentIcon as FIF
 
 from app import TaskManager
@@ -76,15 +77,19 @@ class ScriptPage(ScrollArea):
         self.group.addSettingCard(self.sw_speed)
 
         self._speed_card = SettingCard(FIF.SPEED_HIGH, tr("Speed"))
-        self._speed_spin = QDoubleSpinBox()
-        self._speed_spin.setRange(0.5, 4.0)
-        self._speed_spin.setSingleStep(0.1)
-        self._speed_spin.setDecimals(1)
-        self._speed_spin.setLocale(QLocale.c())
-        self._speed_spin.setValue(ac.get("speed", 2.0))
-        self._speed_spin.setEnabled(ac.get("force_speed", False))
-        self._speed_spin.valueChanged.connect(self._auto_save)
-        self._speed_card.hBoxLayout.addWidget(self._speed_spin, 0, Qt.AlignRight)
+        speed_val = ac.get("speed", 2.0)
+        self._speed_lbl = QLabel(f"{speed_val:.1f}x")
+        self._speed_lbl.setFont(QFont("Microsoft YaHei", 10))
+        self._speed_lbl.setFixedWidth(50)
+        self._speed_lbl.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self._speed_slider = Slider()
+        self._speed_slider.setRange(50, 400)
+        self._speed_slider.setValue(int(speed_val * 100))
+        self._speed_slider.setEnabled(ac.get("force_speed", False))
+        self._speed_slider.valueChanged.connect(self._on_speed_slider_changed)
+        self._speed_slider.valueChanged.connect(self._auto_save)
+        self._speed_card.hBoxLayout.addWidget(self._speed_slider, 1)
+        self._speed_card.hBoxLayout.addWidget(self._speed_lbl)
         self.group.addSettingCard(self._speed_card)
         layout.addWidget(self.group)
 
@@ -166,11 +171,14 @@ class ScriptPage(ScrollArea):
         ac = global_config.setdefault("auto_course", {})
         ac["restore_cookies"] = self.sw_keep.isChecked()
         ac["force_speed"] = self.sw_speed.isChecked()
-        ac["speed"] = self._speed_spin.value()
+        ac["speed"] = self._speed_slider.value() / 100.0
         save_config()
 
     def _on_force_speed_toggled(self, enabled: bool):
-        self._speed_spin.setEnabled(enabled)
+        self._speed_slider.setEnabled(enabled)
+
+    def _on_speed_slider_changed(self, v: int):
+        self._speed_lbl.setText(f"{v/100:.1f}x")
 
     def _append_log(self, msg: str):
         sb = self._log_view.verticalScrollBar()
