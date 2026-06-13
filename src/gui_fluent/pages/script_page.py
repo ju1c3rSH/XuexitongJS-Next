@@ -1,4 +1,4 @@
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QLocale
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QPlainTextEdit, QDoubleSpinBox
 from qfluentwidgets import ScrollArea, PrimaryPushButton, InfoBar
 from qfluentwidgets import SettingCardGroup, SettingCard, SwitchSettingCard
@@ -80,6 +80,7 @@ class ScriptPage(ScrollArea):
         self._speed_spin.setRange(0.5, 4.0)
         self._speed_spin.setSingleStep(0.1)
         self._speed_spin.setDecimals(1)
+        self._speed_spin.setLocale(QLocale.c())
         self._speed_spin.setValue(ac.get("speed", 2.0))
         self._speed_spin.setEnabled(ac.get("force_speed", False))
         self._speed_spin.valueChanged.connect(self._auto_save)
