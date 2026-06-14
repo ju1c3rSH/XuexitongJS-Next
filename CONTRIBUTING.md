@@ -1,6 +1,6 @@
-# Contributing to uXuexitong
+# Contributing to XueXiTong-Helper
 
-感谢你对本项目的关注！欢迎提交 Issue、Pull Request 或提出建议。请遵循以下贡献指南，以便我们更高效地协作。
+欢迎提交 Issue、Pull Request 或提出建议。请遵循以下贡献指南。
 
 ---
 
@@ -9,9 +9,10 @@
 1. **克隆仓库**
 
    ```sh
-   git clone <your-repo-url>
-   cd uXuexitongJS
+   git clone https://github.com/ju1c3rSH/XuexitongJS-Next.git
+   cd XuexitongJS-Next
    ```
+
 2. **创建并激活虚拟环境**
 
    - Windows:
@@ -24,89 +25,74 @@
      python3 -m venv venv
      source venv/bin/activate
      ```
+
 3. **安装依赖**
 
    ```sh
    pip install -r requirements.txt
    ```
-4. **前端依赖（如有）**
-
-   - 若涉及 JS 依赖，请在 `src/js/` 目录下说明。
 
 ---
 
 ## 代码规范
 
-- **Python**
+### Python
 
-  - 遵循 [PEP8](https://pep8.org/) 代码风格。
-  - 推荐使用 `black` 或 `autopep8` 格式化代码。
-  - 文件编码统一为 UTF-8。
-  - 资源文件路径请使用 `resource_path("data/xxx")` 形式，避免多级 `..`。
-- **JavaScript**
+- 遵循 [PEP8](https://pep8.org/) 代码风格
+- 使用 [Ruff](https://docs.astral.sh/ruff/) 进行代码检查和格式化，配置见 `pyproject.toml`
+- 文件编码统一为 UTF-8
+- 资源路径统一使用 `static_path()` 和 `writable_path()`（定义在 `src/app/utils/file_path.py`）
 
-  - 推荐使用 [StandardJS](https://standardjs.com/) 或 ESLint 检查代码风格。
-  - 变量命名清晰，注释充分。
-- **资源文件**
+### JavaScript
 
-  - 新增图片、字体、JSON 等资源请放在 `data/static/` 或 `resource/image/` 等对应目录。
-  - 临时/输出文件请写入 `data/temp/` 或用户目录，不要覆盖静态资源。
+- 代码位于 `src/main_script/modules/` 目录，按模块分为 `core`、`nav`、`video`、`pdf`、`quiz`、`main`
+- 构建使用 `node src/main_script/build.js`，按顺序拼接模块生成 `script.js`
+- 顶层全局变量使用 `var`（脚本可能被重复注入，`let` 会抛出重新声明错误）
 
 ---
 
 ## 提交规范
 
-- **分支管理**
-  - 建议使用 `feature/xxx`、`bugfix/xxx`、`docs/xxx` 等分支命名。
-- **Commit 信息**
-  - 使用简明英文或中文描述，如：
-    ```
-    feat: 新增AI答题接口
-    fix: 修复资源路径兼容问题
-    docs: 完善打包教程
-    ```
-- **PR 说明**
-  - 请详细描述变更内容、影响范围及测试方式。
+- **分支命名**：`feature/xxx`、`bugfix/xxx`、`docs/xxx`
+- **Commit 信息**：简明描述变更内容，中英文均可
+  ```
+  feat: 新增答题重试机制
+  fix: 修复 iframe 遍历超时问题
+  docs: 更新 README 快速开始部分
+  ```
+- **PR 说明**：请描述变更内容、影响范围和测试方式
 
 ---
 
 ## Issue 反馈
 
-- 提交 Issue 前请先搜索是否已存在类似问题。
-- 提供详细的复现步骤、环境信息（操作系统、Python/Node 版本等）、报错日志等。
-- Bug 报告请尽量附带截图或日志。
+- 提交前请先搜索是否已存在类似问题
+- 提供复现步骤、环境信息（操作系统、Python 版本）、报错日志
+- Bug 报告请尽量附带截图或日志
 
 ---
 
 ## Pull Request 流程
 
-1. Fork 本仓库并新建分支。
-2. 按上述规范进行开发和提交。
-3. 本地测试通过后提交 PR。
-4. 等待维护者 Review 并合并。
+1. Fork 本仓库并新建分支
+2. 按规范进行开发和提交
+3. 确保本地运行正常后提交 PR
+4. 等待维护者 Review 并合并
 
 ---
 
-## 资源文件管理
+## 打包说明
 
-- 只读资源（如字体、图片、模板）请放在 `data/static/` 或 `resource/image/`。
-- 可写文件（如运行时生成的 json/html）请写入 `data/temp/` 或用户主目录。
-- 打包时请确保所有静态资源通过 `--add-data` 参数包含。
-
----
-
-## 代码审查与合并
-
-- 所有 PR 需通过基本测试和代码审查。
-- 维护者有权根据项目需要进行修改或拒绝合并。
+- 使用 `build.ps1` 进行 PyInstaller 打包
+- 打包配置见 `build.spec`，隐式导入和排除项已在此文件中声明
+- 调试构建：`.\build.ps1 -Debug`
 
 ---
 
 ## 其他
 
-- 遵守 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)。
-- 禁止任何商业用途，遵循 CC BY-NC 4.0 协议。
-
----
+- 遵守 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- 本项目基于 CC BY-NC 4.0 协议，禁止商业使用
+- 联系方式：通过 GitHub Issues 或 Discussions 沟通
 
 感谢你的贡献！

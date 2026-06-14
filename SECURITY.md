@@ -1,52 +1,39 @@
-# SECURITY.md
-
-| col1 | col2 | col3 |
-| ---- | ---- | ---- |
-|      |      |      |
-|      |      |      |
-
-## 安全政策
-
-本项目高度重视安全问题。请遵循以下安全政策，帮助我们共同维护项目的安全性。
-
----
+# Security Policy
 
 ## 报告安全漏洞
 
-如果你发现了任何安全漏洞或潜在风险，请**不要在公开 Issue 或 Pull Request 中披露**，而是通过以下方式私下报告：
+如发现安全漏洞或潜在风险，请**不要在公开 Issue 或 Pull Request 中披露**，通过以下方式私下报告：
 
-- 邮箱：unraous@qq.com
+- 在 GitHub 上发起 [Security Advisory](https://github.com/ju1c3rSH/XuexitongJS-Next/security/advisories/new)
+- 或通过 Issues 页面说明需要私密报告，我们会提供联系方式
 
-请在邮件中包含以下内容：
+请在报告中包含：
 
 - 漏洞描述及影响范围
 - 复现步骤或相关代码片段
-- 你的联系方式（可选）
+- 建议的修复方案（可选）
 
-我们会在收到报告后**48小时内回复**，并在修复后第一时间公开致谢（如你同意）。
+我们会在收到报告后尽快回复，并在修复后致谢（如你同意）。
 
 ---
 
 ## 安全最佳实践
 
-- **依赖管理**：请勿随意升级依赖库，所有依赖变更需经过 Review。
-- **敏感信息**：不要在代码、配置或日志中提交 API Key、密码等敏感信息。
-- **环境变量**：建议通过 `.env` 文件管理敏感配置，`.env` 已加入 `.gitignore`。
-- **第三方代码**：引入第三方代码前请确认其安全性和许可证合规性。
+- **API Key**：在 GUI 中配置后存储在 `config.toml`，该文件已加入 `.gitignore`，不会提交到仓库
+- **浏览器驱动**：Selenium 使用的 WebDriver 请从官方渠道获取
+- **网络通信**：WebSocket 服务仅绑定 `localhost:8765`，不对外暴露
+- **依赖管理**：请勿随意升级依赖库，所有依赖变更需经过 Review
+- **敏感信息**：不要在代码、配置或日志中提交 API Key、密码等敏感信息
 
 ---
 
-## 责任声明
+## 免责声明
 
-本项目为开源学习用途，**禁止任何商业用途**。使用本项目造成的任何安全问题，作者不承担任何责任。
+本项目仅供学习使用。使用本项目造成的任何安全问题或账号封禁，开发者不承担任何责任。
 
 ---
 
 ## 参考
 
-- [GitHub 安全最佳实践](https://docs.github.com/cn/code-security/getting-started/keeping-your-code-secure)
-- [CC BY-NC 4.0 协议](https://creativecommons.org/licenses/by-nc/4.0/)
-
----
-
-感谢你的安全贡献！
+- [GitHub Security Advisories](https://docs.github.com/en/code-security/security-advisories)
+- [CC BY-NC 4.0](https://creativecommons.org/licenses/by-nc/4.0/)
