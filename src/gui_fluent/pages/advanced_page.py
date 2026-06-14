@@ -4,7 +4,7 @@ import shutil
 from PyQt5.QtCore import QLocale
 from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QPushButton
 from PyQt5.QtGui import QFont
-from qfluentwidgets import ScrollArea, LineEdit, SpinBox, Slider
+from qfluentwidgets import ScrollArea, LineEdit, SpinBox
 from qfluentwidgets import SwitchSettingCard, InfoBar, MessageBox
 from qfluentwidgets import FluentIcon as FIF
 
@@ -51,18 +51,6 @@ class AdvancedPage(ScrollArea):
         ac = global_config.get("auto_course", {})
         self._poll = self._spin_row(layout, tr("Poll Interval (ms)"), ac.get("poll_interval_ms", 100), 50, 1000)
         self._retry_max = self._spin_row(layout, tr("Max Retries"), ac.get("poll_max_retry", 50), 5, 200)
-
-        speed = ac.get("speed", 2.0)
-        self._speed_lbl = QLabel(f"Speed: {speed}x")
-        self._speed_lbl.setFont(QFont("Microsoft YaHei", 9))
-        self._speed_lbl.setStyleSheet("font-size: 14px;")
-        layout.addWidget(self._speed_lbl)
-        self._speed = Slider()
-        self._speed.setRange(50, 400)
-        self._speed.setValue(int(speed * 100))
-        self._speed.valueChanged.connect(lambda v: self._speed_lbl.setText(f"Speed: {v/100:.2f}x"))
-        self._speed.setFont(QFont("Microsoft YaHei", 9))
-        layout.addWidget(self._speed)
 
         # --- AI ---
         self.lbl_ai = QLabel(tr("AI"))
@@ -116,7 +104,6 @@ class AdvancedPage(ScrollArea):
         # --- 自动保存信号 ---
         for w in [self._batch, self._retry, self._timeout, self._poll, self._retry_max]:
             w.valueChanged.connect(self._auto_save)
-        self._speed.valueChanged.connect(self._auto_save)
         self._temp.valueChanged.connect(self._auto_save)
         self._max_tok.valueChanged.connect(self._auto_save)
 
@@ -167,7 +154,6 @@ class AdvancedPage(ScrollArea):
         ac = global_config.setdefault("auto_course", {})
         ac["poll_interval_ms"] = self._poll.value()
         ac["poll_max_retry"] = self._retry_max.value()
-        ac["speed"] = self._speed.value() / 100.0
 
         oa = global_config.setdefault("openai", {})
         oa["temperature"] = self._temp.value() / 100.0

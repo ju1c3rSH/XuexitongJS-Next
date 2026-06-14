@@ -310,6 +310,7 @@ class CourseHandler:
 
     def launch_script(self) -> None:
         """启动并注入js脚本"""
+        self.refresh_settings()
         self._script_code = self._init_script()
         self._launch_ws_server()
 

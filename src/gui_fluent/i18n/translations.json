@@ -65,6 +65,11 @@
     "Reset": { "en": "Reset", "zh": "重置" },
     "Settings restored to defaults": { "en": "Settings restored to defaults", "zh": "配置已恢复为默认值" },
 
+    "Preview": { "en": "Preview", "zh": "预览" },
+    "Button": { "en": "Button", "zh": "按钮" },
+    "Toggle": { "en": "Toggle", "zh": "开关" },
+    "Checkbox": { "en": "Checkbox", "zh": "复选框" },
+
     "Fluent Mode": { "en": "Fluent Mode", "zh": "主题模式" },
     "Light": { "en": "Light", "zh": "浅色" },
     "Dark": { "en": "Dark", "zh": "深色" },
@@ -73,5 +78,13 @@
 
     "Language": { "en": "Language", "zh": "语言" },
     "English": { "en": "English", "zh": "English" },
-    "中文": { "en": "中文", "zh": "中文" }
+    "中文": { "en": "中文", "zh": "中文" },
+
+    "Aoguchi": { "en": "Aoguchi", "zh": "青口" },
+    "Gummy": { "en": "Gummy", "zh": "软糖" },
+    "Prussian": { "en": "Prussian", "zh": "普鲁士蓝" },
+    "Regal": { "en": "Regal", "zh": "碧波" },
+    "Rosmarinus": { "en": "Rosmarinus", "zh": "迷迭香" },
+    "Vandyke": { "en": "Vandyke", "zh": "凡戴克" },
+    "Vira": { "en": "Vira", "zh": "苍穹" }
 }

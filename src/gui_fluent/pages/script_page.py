@@ -1,6 +1,7 @@
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QPlainTextEdit
+from PyQt5.QtCore import Qt, QLocale
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QPlainTextEdit, QDoubleSpinBox
 from qfluentwidgets import ScrollArea, PrimaryPushButton, InfoBar
-from qfluentwidgets import SettingCardGroup, SwitchSettingCard
+from qfluentwidgets import SettingCardGroup, SettingCard, SwitchSettingCard
 from qfluentwidgets import FluentIcon as FIF
 
 from app import TaskManager
@@ -71,7 +72,20 @@ class ScriptPage(ScrollArea):
         )
         self.sw_speed.setChecked(ac.get("force_speed", False))
         self.sw_speed.checkedChanged.connect(self._auto_save)
+        self.sw_speed.checkedChanged.connect(self._on_force_speed_toggled)
         self.group.addSettingCard(self.sw_speed)
+
+        self._speed_card = SettingCard(FIF.SPEED_HIGH, tr("Speed"))
+        self._speed_spin = QDoubleSpinBox()
+        self._speed_spin.setRange(0.5, 4.0)
+        self._speed_spin.setSingleStep(0.1)
+        self._speed_spin.setDecimals(1)
+        self._speed_spin.setLocale(QLocale.c())
+        self._speed_spin.setValue(ac.get("speed", 2.0))
+        self._speed_spin.setEnabled(ac.get("force_speed", False))
+        self._speed_spin.valueChanged.connect(self._auto_save)
+        self._speed_card.hBoxLayout.addWidget(self._speed_spin, 0, Qt.AlignRight)
+        self.group.addSettingCard(self._speed_card)
         layout.addWidget(self.group)
 
         # --- Logcat ---
@@ -152,7 +166,11 @@ class ScriptPage(ScrollArea):
         ac = global_config.setdefault("auto_course", {})
         ac["restore_cookies"] = self.sw_keep.isChecked()
         ac["force_speed"] = self.sw_speed.isChecked()
+        ac["speed"] = self._speed_spin.value()
         save_config()
+
+    def _on_force_speed_toggled(self, enabled: bool):
+        self._speed_spin.setEnabled(enabled)
 
     def _append_log(self, msg: str):
         sb = self._log_view.verticalScrollBar()
