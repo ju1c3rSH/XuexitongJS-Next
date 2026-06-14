@@ -5,7 +5,6 @@ import sys
 block_cipher = None
 
 datas = [
-    ("src/gui", "src/gui"),
     ("src/resources", "src/resources"),
     ("src/main_script", "src/main_script"),
 ]

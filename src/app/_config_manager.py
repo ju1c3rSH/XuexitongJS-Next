@@ -10,6 +10,19 @@ class Configuration:
 
     def set_config(self, keys: list[str], value: Any):
         """设置配置"""
+        NUMERIC_KEYS = {
+            "batch_size", "retry_count", "api_timeout",
+            "poll_interval_ms", "poll_max_retry", "speed",
+            "temperature", "max_tokens",
+        }
+        key_str = '.'.join(keys)
+        if keys[-1] in NUMERIC_KEYS and not isinstance(value, (int, float)):
+            try:
+                value = float(value) if '.' in str(value) else int(value)
+            except (ValueError, TypeError):
+                logging.error("[%s]应为数值，收到: %s (%s)", key_str, value, type(value).__name__)
+                return
+
         tmp: dict = global_config
         for key in keys[:-1]:
             if key not in tmp or not isinstance(tmp[key], dict):
