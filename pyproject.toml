@@ -50,7 +50,7 @@ max-complexity = 10
 
 # import 排序配置
 [tool.ruff.lint.isort]
-known-first-party = ["app", "gui"]
+known-first-party = ["app"]
 
 # 格式化配置
 [tool.ruff.format]
