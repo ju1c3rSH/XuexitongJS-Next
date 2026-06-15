@@ -1,4 +1,4 @@
-# XueXiTong-Helper
+# uXueXiTongX
 
 视频更稳，答题更准，使用更省心
 
@@ -75,12 +75,12 @@ AI 返回答案 JSON → WebSocket 回传浏览器 → 自动填写并提交
 
 ### 下载 Release
 
-从 [Releases](https://github.com/ju1c3rSH/XuexitongJS-Next/releases) 下载 Windows 打包版本，解压后运行。
+从 [Releases](https://github.com/ju1c3rSH/uXueXiTongX/releases) 下载 Windows 打包版本，解压后运行。
 
 ### 源码运行
 
 ```bash
-git clone https://github.com/ju1c3rSH/XuexitongJS-Next.git
+git clone https://github.com/ju1c3rSH/uXueXiTongX.git
 cd XuexitongJS-Next
 
 python -m venv venv
