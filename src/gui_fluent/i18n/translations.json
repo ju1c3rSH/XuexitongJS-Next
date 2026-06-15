@@ -1,5 +1,5 @@
 {
-    "uXuexitong": { "en": "uXuexitong", "zh": "uXuexitong" },
+    "uXueXiTongX": { "en": "uXueXiTongX", "zh": "uXueXiTongX" },
 
     "Script": { "en": "Script", "zh": "脚本" },
     "API": { "en": "API", "zh": "API" },
@@ -86,5 +86,27 @@
     "Regal": { "en": "Regal", "zh": "碧波" },
     "Rosmarinus": { "en": "Rosmarinus", "zh": "迷迭香" },
     "Vandyke": { "en": "Vandyke", "zh": "凡戴克" },
-    "Vira": { "en": "Vira", "zh": "苍穹" }
+    "Vira": { "en": "Vira", "zh": "苍穹" },
+
+    "About": { "en": "About", "zh": "关于" },
+    "Version": { "en": "Version", "zh": "版本" },
+    "Description": { "en": "Description", "zh": "简介" },
+    "More stable video, more accurate answering, effortless to use.": { "en": "More stable video, more accurate answering, effortless to use.", "zh": "视频更稳，答题更准，使用更省心" },
+    "Auto-learning tool for Chaoxing Xuexitong. Supports auto video playback, PDF auto-scrolling, AI-powered answering, based on Selenium and WebSocket for browser automation.": { "en": "Auto-learning tool for Chaoxing Xuexitong. Supports auto video playback, PDF auto-scrolling, AI-powered answering, based on Selenium and WebSocket for browser automation.", "zh": "超星学习通全自动学习工具。支持视频自动播放、PDF 自动翻阅、AI 智能答题，基于 Selenium 与 WebSocket 实现浏览器自动化操作。" },
+    "Credits": { "en": "Credits", "zh": "致谢" },
+    "This project originated from the following open-source projects:": { "en": "This project originated from the following open-source projects:", "zh": "本项目源于以下开源项目：" },
+    "Features": { "en": "Features", "zh": "核心特性" },
+    "JS Automation": { "en": "JS Automation", "zh": "JS 自动化" },
+    "iframe traversal, lock/cooldown coordination, auto-reconnect on page refresh.": { "en": "iframe traversal, lock/cooldown coordination, auto-reconnect on page refresh.", "zh": "三层 iframe 嵌套遍历，锁与冷却机制协调多任务，页面刷新后自动重连。" },
+    "AI Answering": { "en": "AI Answering", "zh": "AI 答题" },
+    "Font deobfuscation, OpenAI-compatible API, auto-retry, web search context.": { "en": "Font deobfuscation, OpenAI-compatible API, auto-retry, web search context.", "zh": "字体反混淆，兼容任意 OpenAI 接口，答题失败自动重试，可选联网搜索上下文。" },
+    "Question Fetching": { "en": "Question Fetching", "zh": "题目获取" },
+    "Structured JSON extraction, image OCR, patch mode with history memory.": { "en": "Structured JSON extraction, image OCR, patch mode with history memory.", "zh": "从页面提取结构化 JSON 题目数据，图片自动下载 OCR，修补模式记录历史。" },
+    "Stability": { "en": "Stability", "zh": "稳定性" },
+    "Multi-threaded, WebSocket auto-reconnect, cookie persistence.": { "en": "Multi-threaded, WebSocket auto-reconnect, cookie persistence.", "zh": "多线程竞态处理机制，WebSocket 断线自动重连，Cookie 持久化。" },
+    "Graphical Interface": { "en": "Graphical Interface", "zh": "图形界面" },
+    "PyQt5 + qfluentwidgets, log panel, config management, theme switching.": { "en": "PyQt5 + qfluentwidgets, log panel, config management, theme switching.", "zh": "基于 PyQt5 与 qfluentwidgets 构建，实时日志面板、配置管理、主题切换。" },
+    "Tech Stack": { "en": "Tech Stack", "zh": "技术栈" },
+    "License": { "en": "License", "zh": "许可证" },
+    "GitHub Repository": { "en": "GitHub Repository", "zh": "GitHub 仓库" }
 }

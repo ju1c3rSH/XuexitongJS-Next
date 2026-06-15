@@ -9,8 +9,8 @@
 1. **克隆仓库**
 
    ```sh
-   git clone https://github.com/ju1c3rSH/XuexitongJS-Next.git
-   cd XuexitongJS-Next
+   git clone https://github.com/ju1c3rSH/uXueXiTongX.git
+   cd uXueXiTongX
    ```
 
 2. **创建并激活虚拟环境**

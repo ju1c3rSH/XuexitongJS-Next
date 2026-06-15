@@ -4,7 +4,7 @@
 
 如发现安全漏洞或潜在风险，请**不要在公开 Issue 或 Pull Request 中披露**，通过以下方式私下报告：
 
-- 在 GitHub 上发起 [Security Advisory](https://github.com/ju1c3rSH/XuexitongJS-Next/security/advisories/new)
+- 在 GitHub 上发起 [Security Advisory](https://github.com/ju1c3rSH/uXueXiTongX/security/advisories/new)
 - 或通过 Issues 页面说明需要私密报告，我们会提供联系方式
 
 请在报告中包含：

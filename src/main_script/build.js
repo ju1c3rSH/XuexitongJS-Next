@@ -4,7 +4,7 @@ const path = require('path');
 const ORDER = ['core', 'nav', 'video', 'pdf', 'quiz', 'main'];
 const dir = path.join(__dirname, 'modules');
 
-let output = '/* uXuexitong auto-built */\n';
+let output = '/* uXueXiTongX auto-built */\n';
 for (const name of ORDER) {
     output += fs.readFileSync(path.join(dir, `${name}.js`), 'utf-8');
     output += '\n\n';

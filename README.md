@@ -81,7 +81,7 @@ AI 返回答案 JSON → WebSocket 回传浏览器 → 自动填写并提交
 
 ```bash
 git clone https://github.com/ju1c3rSH/uXueXiTongX.git
-cd XuexitongJS-Next
+cd uXueXiTongX
 
 python -m venv venv
 venv\Scripts\activate        # Windows

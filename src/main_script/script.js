@@ -1,6 +1,6 @@
-/* uXuexitong auto-built */
+/* uXueXiTongX auto-built */
 /**使用说明：
- * uXuexitong 学习通一键全自动刷课脚本
+ * uXueXiTongX 学习通一键全自动刷课脚本
  * 
  * 功能简介：
  * - 自动识别课程树结构，自动切换章节

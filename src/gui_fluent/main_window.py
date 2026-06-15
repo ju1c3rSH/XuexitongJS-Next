@@ -9,7 +9,7 @@ class MainWindow(FluentWindow):
     def __init__(self, backend: TaskManager):
         super().__init__()
         self.backend = backend
-        self.setWindowTitle("uXuexitong")
+        self.setWindowTitle("uXueXiTongX")
         self.setMinimumSize(860, 560)
         self.resize(1024, 680)
         self._page_map = {}
@@ -23,6 +23,7 @@ class MainWindow(FluentWindow):
         from .pages.settings_page import SettingsPage
         from .pages.advanced_page import AdvancedPage
         from .pages.theme_page import ThemePage
+        from .pages.about_page import AboutPage
 
         self.script_page = ScriptPage(self.backend, parent=self)
         self.script_page.setObjectName("scriptPage")
@@ -39,12 +40,16 @@ class MainWindow(FluentWindow):
         self.theme_page = ThemePage(parent=self)
         self.theme_page.setObjectName("themePage")
 
+        self.about_page = AboutPage(parent=self)
+        self.about_page.setObjectName("aboutPage")
+
         self._page_map = {
-            "scriptPage": (self.script_page, FIF.VIDEO, "Script", None),
-            "apiPage": (self.api_page, FIF.SETTING, "API", None),
-            "settingsPage": (self.settings_page, FIF.SYNC, "Settings", None),
+            "scriptPage": (self.script_page, FIF.COMMAND_PROMPT, "Script", None),
+            "apiPage": (self.api_page, FIF.CLOUD, "API", None),
+            "settingsPage": (self.settings_page, FIF.SETTING, "Settings", None),
             "advancedPage": (self.advanced_page, FIF.DEVELOPER_TOOLS, "Advanced", None),
             "themePage": (self.theme_page, FIF.PALETTE, "Theme", NavigationItemPosition.BOTTOM),
+            "aboutPage": (self.about_page, FIF.GITHUB, "About", NavigationItemPosition.BOTTOM),
         }
 
         self._rebuild_navigation()
@@ -57,7 +62,7 @@ class MainWindow(FluentWindow):
             self.addSubInterface(page, icon, tr(label), **nav_kwargs)
 
     def _on_language_changed(self, lang):
-        self.setWindowTitle("uXuexitong")
+        self.setWindowTitle("uXueXiTongX")
         # Remove existing navigation items and re-add with translated labels
         for key in list(self._page_map.keys()):
             self.navigationInterface.removeWidget(key)
@@ -68,3 +73,4 @@ class MainWindow(FluentWindow):
         self.settings_page.retranslate()
         self.advanced_page.retranslate()
         self.theme_page.retranslate()
+        self.about_page.retranslate()
